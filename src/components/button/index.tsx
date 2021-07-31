@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
-import { BaseButton } from "./styled";
+import { BaseButton } from './styled';
 
 export interface IButton {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 export const Button: React.FC<IButton> = ({ ...rest }) => {
-  return <BaseButton {...rest} />;
+    return <BaseButton {...rest} />;
 };

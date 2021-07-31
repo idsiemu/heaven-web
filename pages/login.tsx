@@ -1,34 +1,16 @@
 import { useState } from 'react';
-import { Wrapper } from '@components/wrapper';
-import { RootState } from '@redux/reducers';
 import GlobalStyle from '@styles/globalStyles';
-import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import Container from '@material-ui/core/Container';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
 import { sessionAction } from '@redux/actions';
-import Router from 'next/router';
 import AbstractComponent from '@components/abstract';
 import { ILoginPayload } from '@redux/features/session/slice';
-
-interface ITextFeild {
-    width?: string;
-}
-
-const HTextField = styled(TextField)<ITextFeild>`
-    && {
-        width: ${props => (props.width ? props.width : 'auto')};
-        margin-bottom: 2rem;
-        & .Mui-focused {
-            color: ${({ theme }) => theme.colors.hoverGrey};
-            fieldset {
-                border-color: ${({ theme }) => theme.colors.hoverGrey};
-            }
-        }
-    }
-`;
+import { HInput } from '@components/input/styled';
+import { HButton } from '@components/button/styled';
+import { Box, Typography } from '@material-ui/core';
+import { common } from '@definitions/styled-components';
+import router from 'next/router';
 
 const LoginContainer = styled(Container)`
     && {
@@ -38,28 +20,12 @@ const LoginContainer = styled(Container)`
         padding: 2rem;
     }
 `;
-
-interface IButton {
-    width?: string;
-}
-
-const HButton = styled(Button)<IButton>`
-    width: ${props => props.width};
-    height: 55px;
-    && {
-        color: ${({ theme }) => theme.colors.white};
-        background: ${({ theme }) => theme.colors.blackGrey};
-        &:hover {
-            background: ${({ theme }) => theme.colors.hoverGrey};
-        }
-    }
-`;
 const Login: React.FC = () => {
     const dispatch = useDispatch();
     const [submit, setSubmit] = useState<ILoginPayload>({
         id: '',
         password: '',
-        device: 'W'
+        device: 'WEB'
     });
     const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -71,16 +37,22 @@ const Login: React.FC = () => {
     };
     return (
         <AbstractComponent>
-            <Wrapper>
-                <GlobalStyle />
-                <LoginContainer>
-                    <HTextField name="id" label="이메일" variant="outlined" width={'30rem'} value={submit.id} onChange={onChangeHandler} />
-                    <HTextField name="password" label="비밀번호" variant="outlined" width={'30rem'} value={submit.password} onChange={onChangeHandler} type="password" />
-                    <HButton width={'30rem'} size="large" onClick={onClickLogin}>
-                        로그인
-                    </HButton>
-                </LoginContainer>
-            </Wrapper>
+            <GlobalStyle />
+            <LoginContainer>
+                <HInput name="id" label="이메일" variant="outlined" width={'100%'} value={submit.id} onChange={onChangeHandler} />
+                <HInput name="password" label="비밀번호" variant="outlined" width={'100%'} value={submit.password} onChange={onChangeHandler} type="password" />
+                <HButton width={'100%'} size="large" onClick={onClickLogin}>
+                    로그인
+                </HButton>
+                <Box style={{ width: '100%', maxWidth: '440px', marginTop: '1rem' }}>
+                    <Typography variant="subtitle1" style={{ display: 'inline-block', marginRight: '0.5rem' }}>
+                        계정이 없으신가요?
+                    </Typography>
+                    <Typography variant="subtitle1" style={{ display: 'inline-block', color: common.colors.lightGrey, cursor: 'pointer' }} onClick={() => router.push('/register')}>
+                        회원가입
+                    </Typography>
+                </Box>
+            </LoginContainer>
         </AbstractComponent>
     );
 };

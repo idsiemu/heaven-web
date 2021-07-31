@@ -7,9 +7,10 @@ const common: BaseTheme = {
     transparent: "transparent",
     darkGrey: "#282C34",
     blackGrey: "#20232A",
-    hoverGrey: 'rgba(0, 0, 0, 0.5)',
+    lightGrey: 'rgba(0, 0, 0, 0.5)',
     white: "#FFFFFF",
-  },
+    black : '#000000'
+  }
 };
 
 export { common };

@@ -13,7 +13,7 @@ const dark: DefaultTheme = {
     cardsBg: "#1A1C22",
     textColor: "#FFFFFF",
     dodgerBlue: "#0062CC",
-  },
+  }
 };
 
 export { dark };

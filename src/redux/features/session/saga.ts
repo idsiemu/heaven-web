@@ -1,6 +1,5 @@
 import { all, call, fork, put, take } from 'redux-saga/effects';
-import { IError } from '../error/slice';
-import { requestLogin, sessionInit } from './api';
+import { requestLogin, requestRegister, sessionInit } from './api';
 import { sessionAction } from './slice';
 import { useCookie } from "next-cookie";
 import { REFRESH_TOKEN, TOKEN } from 'src/assets/utils/ENV';
@@ -10,7 +9,8 @@ const cookie = useCookie();
 function* watchSessionSaga() {
     yield all([
         fork(loginSaga),
-        fork(initialSaga)
+        fork(initialSaga),
+        fork(registerSaga)
     ]);
 }
 
@@ -31,9 +31,22 @@ function* loginSaga() {
             cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN])
             yield put(sessionAction.loginSuccess(login.session))
         }else{
-
+            yield put(sessionAction.loginFailure(login.error))
         }
-        // const action = yield take()
+    }
+}
+
+function* registerSaga() {
+    while(true) {
+        const {payload} = yield take(sessionAction.registerRequest)
+        const {data: {register}} = yield call(requestRegister, payload)
+        if(register.status === 200){
+            cookie.set(TOKEN, register[TOKEN])
+            cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN])
+            yield put(sessionAction.registerSuccess(register.session))
+        }else{
+            yield put(sessionAction.registerFailure(register.error))
+        }
     }
 }
 

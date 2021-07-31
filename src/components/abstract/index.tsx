@@ -29,18 +29,21 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             }
         }
     }, [session.initial, session.session]);
-
     return (
         <React.Fragment>
             <Head>
                 <title>{headTitle}</title>
             </Head>
-            {session.initial ||
-            (!session.session &&
-                !(Router.pathname === '/login' || Router.pathname === '/register')) ? (
+            {session.initial ? (
                 <div>loading</div>
             ) : (
-                props.children
+                <React.Fragment>
+                    {session.session ? (
+                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? <div>loading</div> : props.children}</React.Fragment>
+                    ) : (
+                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? props.children : <div>loading</div>}</React.Fragment>
+                    )}
+                </React.Fragment>
             )}
         </React.Fragment>
     );

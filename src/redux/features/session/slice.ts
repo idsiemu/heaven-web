@@ -1,17 +1,26 @@
-import { createSelector, createSlice, createAction, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IError } from '../error/slice';
 
 interface ISessionState {
     initial: boolean;
     loading: boolean;
     session: ISession | null;
-    error?: IError;
+    error: IError | null;
 };
 
+export interface IRegisterPayload {
+    id : string;
+    name : string;
+    phone? : string;
+    password : string;
+    confirm : string;
+    role? : number;
+    device: 'WEB';
+}
 export interface ILoginPayload {
     id: string;
     password: string;
-    device: string;
+    device: 'WEB';
 };
 
 export interface ILoginSession extends ISession {
@@ -31,7 +40,8 @@ export interface ISession {
 const initialState: ISessionState = {
     initial: true,
     loading: false,
-    session: null
+    session: null,
+    error : null
 };
 
 const sessionSlice = createSlice({
@@ -47,7 +57,7 @@ const sessionSlice = createSlice({
         },
         loginRequest: (state, _action: PayloadAction<ILoginPayload>) => {
             state.loading = true;
-            state.error = undefined;
+            state.error = null;
         },
         loginSuccess: (state, { payload }: PayloadAction<ISession>) => {
             state.loading = false
@@ -59,17 +69,31 @@ const sessionSlice = createSlice({
         },
         logoutRequest:(state, _action:PayloadAction<{idx : number}>) => {
             state.loading = true;
-            state.error = undefined;
+            state.error = null;
         },
         logoutSuccess:(state) => {
             state.loading = true;
             state.session = null
-            state.error = undefined;
+            state.error = null;
         },
         logoutFailure: (state, { payload }: PayloadAction<IError>) => {
             state.loading = false;
             state.error = payload
         },
+        registerRequest : (state, _action:PayloadAction<IRegisterPayload>) => {
+            state.loading = true
+        },
+        registerSuccess: (state, { payload }: PayloadAction<ISession>) => {
+            state.loading = false
+            state.session = payload
+        },
+        registerFailure: (state, { payload }: PayloadAction<IError>) => {
+            state.loading = false;
+            state.error = payload
+        },
+        clearError: (state) => {
+            state.error = null
+        }
     },
 });
 

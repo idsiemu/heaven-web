@@ -1,7 +1,7 @@
 // #region Global Imports
 import "styled-components";
 // #endregion Global Imports
-type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "hoverGrey" | "white";
+type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "lightGrey" | "white" | 'black';
 
 type ExtendedColors =
   | CommonColors
