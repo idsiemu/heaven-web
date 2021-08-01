@@ -4,8 +4,10 @@ import { IError } from '../error/slice';
 interface ISessionState {
     initial: boolean;
     loading: boolean;
+    location?: string | null;
     session: ISession | null;
-    error: IError | null;
+    errors: IError[] | null;
+    snack : IError[] | null;
 };
 
 export interface IRegisterPayload {
@@ -41,7 +43,8 @@ const initialState: ISessionState = {
     initial: true,
     loading: false,
     session: null,
-    error : null
+    errors : null,
+    snack: null
 };
 
 const sessionSlice = createSlice({
@@ -57,42 +60,58 @@ const sessionSlice = createSlice({
         },
         loginRequest: (state, _action: PayloadAction<ILoginPayload>) => {
             state.loading = true;
-            state.error = null;
+            state.errors = null
         },
         loginSuccess: (state, { payload }: PayloadAction<ISession>) => {
             state.loading = false
             state.session = payload
+            state.errors = null
         },
-        loginFailure: (state, { payload }: PayloadAction<IError>) => {
+        loginFailure: (state, { payload }: PayloadAction<{status : number, errors : IError[]}>) => {
             state.loading = false;
-            state.error = payload
+            if(payload.status === 400){
+                state.errors = payload.errors
+            }else {
+                state.snack = payload.errors
+            }
         },
         logoutRequest:(state, _action:PayloadAction<{idx : number}>) => {
             state.loading = true;
-            state.error = null;
         },
         logoutSuccess:(state) => {
             state.loading = true;
             state.session = null
-            state.error = null;
         },
-        logoutFailure: (state, { payload }: PayloadAction<IError>) => {
+        logoutFailure: (state, { payload }: PayloadAction<IError[]>) => {
             state.loading = false;
-            state.error = payload
+            state.errors = payload
         },
         registerRequest : (state, _action:PayloadAction<IRegisterPayload>) => {
             state.loading = true
+            state.errors = null
         },
         registerSuccess: (state, { payload }: PayloadAction<ISession>) => {
             state.loading = false
             state.session = payload
+            state.errors = null
         },
-        registerFailure: (state, { payload }: PayloadAction<IError>) => {
+        registerFailure: (state, { payload }: PayloadAction<{status : number, errors : IError[]}>) => {
             state.loading = false;
-            state.error = payload
+            if(payload.status === 400){
+                state.errors = payload.errors
+            }else {
+                state.snack = payload.errors
+            }
         },
         clearError: (state) => {
-            state.error = null
+            state.errors = null
+            state.snack = null
+        },
+        setLocation: (state, { payload }: PayloadAction<string|null>) => {
+            state.location = payload
+        },
+        setSnack: (state, { payload }: PayloadAction<IError[]| null>) => {
+            state.snack = payload
         }
     },
 });

@@ -30,8 +30,9 @@ function* loginSaga() {
             cookie.set(TOKEN, login[TOKEN])
             cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN])
             yield put(sessionAction.loginSuccess(login.session))
+            yield put(sessionAction.setLocation(login.location))
         }else{
-            yield put(sessionAction.loginFailure(login.error))
+            yield put(sessionAction.loginFailure({status: login.status, errors : login.errors}))
         }
     }
 }
@@ -44,8 +45,9 @@ function* registerSaga() {
             cookie.set(TOKEN, register[TOKEN])
             cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN])
             yield put(sessionAction.registerSuccess(register.session))
+            yield put(sessionAction.setLocation(register.location))
         }else{
-            yield put(sessionAction.registerFailure(register.error))
+            yield put(sessionAction.registerFailure({status: register.status, errors : register.errors}))
         }
     }
 }

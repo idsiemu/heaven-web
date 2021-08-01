@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@redux/reducers';
 import Router from 'next/router';
 import Head from 'next/head';
+import Progress from '@components/progress';
 
 export interface IAbstractComponent {
     headTitle?: string;
@@ -29,19 +30,29 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             }
         }
     }, [session.initial, session.session]);
+
+    useEffect(() => {
+        if (session.location) {
+            Router.push(`service/${session.location}`);
+        }
+        return () => {
+            dispatch(sessionAction.setLocation(null));
+        };
+    }, [session.location]);
+
     return (
         <React.Fragment>
             <Head>
                 <title>{headTitle}</title>
             </Head>
             {session.initial ? (
-                <div>loading</div>
+                <Progress />
             ) : (
                 <React.Fragment>
                     {session.session ? (
-                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? <div>loading</div> : props.children}</React.Fragment>
+                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? <Progress /> : props.children}</React.Fragment>
                     ) : (
-                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? props.children : <div>loading</div>}</React.Fragment>
+                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? props.children : <Progress />}</React.Fragment>
                     )}
                 </React.Fragment>
             )}

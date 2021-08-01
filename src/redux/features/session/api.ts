@@ -51,6 +51,7 @@ export const requestLogin = ( param:ILoginPayload ) => {
                     phone,
                     gender
                 },
+                location,
                 heaven_token,
                 refresh_token,
                 errors {
@@ -87,6 +88,7 @@ export const requestRegister = (param: IRegisterPayload) => {
                     phone,
                     gender
                 },
+                location,
                 heaven_token,
                 refresh_token,
                 errors {

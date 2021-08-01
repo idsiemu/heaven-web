@@ -14,6 +14,9 @@ const light: DefaultTheme = {
     textColor: "#000000",
     dodgerBlue: "#007BFF",
   },
+  size: {
+    ...common.size
+  }
 };
 
 export { light };

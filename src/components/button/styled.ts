@@ -18,7 +18,7 @@ interface IButton {
 
 export const HButton = styled(Button)<IButton>`
   width: ${props => props.width};
-  max-width: 420px;
+  max-width: ${({theme}) => `${theme.size.mobileWidth}px`};
   height: 55px;
   && {
       color: ${({ theme }) => theme.colors.white};

@@ -1,7 +1,11 @@
 // #region Global Imports
 import "styled-components";
 // #endregion Global Imports
-type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "lightGrey" | "white" | 'black';
+type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "lightGrey" | "white" | 'black' | 'red' | 'green';
+
+type CommonSizes = 'mobileWidth'
+
+type ExtendedSizes = CommonSizes
 
 type ExtendedColors =
   | CommonColors
@@ -15,9 +19,11 @@ type ExtendedColors =
 declare module "styled-components" {
   export interface BaseTheme {
     colors: Record<CommonColors, string>;
+    size: Record<CommonSizes, number>;
   }
 
   export interface DefaultTheme extends BaseTheme {
     colors: Record<ExtendedColors, string>;
+    size: Record<ExtendedSizes, number>;
   }
 }

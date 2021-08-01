@@ -9,8 +9,13 @@ const common: BaseTheme = {
     blackGrey: "#20232A",
     lightGrey: 'rgba(0, 0, 0, 0.5)',
     white: "#FFFFFF",
-    black : '#000000'
+    black : '#000000',
+    red: '#f44336',
+    green: 'green'
+  },
+  size: {
+    mobileWidth : 420
   }
-};
+}
 
 export { common };
