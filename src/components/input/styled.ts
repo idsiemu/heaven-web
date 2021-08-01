@@ -3,7 +3,8 @@ import TextField from '@material-ui/core/TextField';
 
 interface IInput {
     width?: string;
-    state?: string
+    state?: string;
+    marginBottom?: string;
 }
 
 export const HInput = styled(TextField)<IInput>`
@@ -11,10 +12,9 @@ export const HInput = styled(TextField)<IInput>`
         position: relative;
         width: ${props => (props.width ? props.width : 'auto')};
         max-width: ${({theme}) => `${theme.size.mobileWidth}px`};
-        margin-bottom: 2rem;
+        margin-bottom: ${props => props.marginBottom ? props.marginBottom : '2rem' };
         .MuiFormLabel-root.Mui-focused{
             color: ${({ theme }) => theme.colors.black};
-
         }
         .MuiOutlinedInput-notchedOutline {
             border-color: ${props => {
