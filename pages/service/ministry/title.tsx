@@ -60,21 +60,23 @@ const Title: React.FC = () => {
                     <HInput width="100%" label="타이틀" variant="outlined" name="id" />
                     <div style={{ position: 'relative', width: '100%', maxWidth: `${common.size.mobileWidth}px` }}>
                         {brief.map((item, index) => (
-                            <Fragment key={index}>
-                                <DatePicker
-                                    disableFuture
-                                    label="년도"
-                                    value={item.when}
-                                    openTo="year"
-                                    inputFormat="yyyy-MM"
-                                    views={['year', 'month']}
-                                    onChange={newValue => {
-                                        onChangeBriefWhen(index, newValue);
-                                    }}
-                                    renderInput={params => <TextField {...params} />}
-                                />
+                            <div key={index} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <div style={{ width: '30%', display: 'inline-block' }}>
+                                    <DatePicker
+                                        disableFuture
+                                        label="년도"
+                                        value={item.when}
+                                        openTo="year"
+                                        inputFormat="yyyy-MM"
+                                        views={['year', 'month']}
+                                        onChange={newValue => {
+                                            onChangeBriefWhen(index, newValue);
+                                        }}
+                                        renderInput={params => <TextField {...params} />}
+                                    />
+                                </div>
                                 <HInput
-                                    width="50%"
+                                    width="65%"
                                     value={item.content}
                                     label={`약력 ${index + 1}`}
                                     variant="outlined"
@@ -82,9 +84,9 @@ const Title: React.FC = () => {
                                     marginBottom="1rem"
                                     onChange={e => onChangeBriefContent(index, e)}
                                 />
-                            </Fragment>
+                            </div>
                         ))}
-                        <Fab style={{ position: 'absolute', bottom: 0, right: '-25px' }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
+                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-25px' }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
                             <AddIcon />
                         </Fab>
                     </div>
