@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, KeyboardEvent } from 'react';
 import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
 import Container from '@material-ui/core/Container';
