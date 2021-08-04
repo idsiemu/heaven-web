@@ -13,6 +13,9 @@ import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import DatePicker from '@material-ui/lab/DatePicker';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { HButton } from '@components/button/styled';
+import { DocumentNode, gql } from '@apollo/client';
+// import gqlQueryInstance from '@apollo/gqlQueryInstance';
+import { useCookie } from 'next-cookie';
 
 const TitleContainer = styled(Container)`
     && {
@@ -20,6 +23,14 @@ const TitleContainer = styled(Container)`
         flex-direction: column;
         align-items: center;
         padding: 2rem;
+    }
+`;
+
+export const GET_TITLE: DocumentNode = gql`
+    query getTitle($idx: Int!) {
+        getTitle(idx: $idx) {
+            status
+        }
     }
 `;
 
@@ -31,6 +42,11 @@ interface IBrief {
 }
 
 const Title: React.FC = () => {
+    const cookie = useCookie();
+    // const response = gqlQueryInstance(GET_TITLE, cookie, {
+    //     variables: { idx: 1 }
+    // });
+    // console.log(response);
     const [brief, setBrief] = useState<Array<IBrief>>([
         {
             open: false,

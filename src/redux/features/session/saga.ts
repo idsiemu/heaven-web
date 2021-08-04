@@ -17,6 +17,7 @@ function* initialSaga() {
     while(true) {
         yield take(sessionAction.initialRequest)
         const { data } = yield call(sessionInit)
+        console.log('session loaded')
         yield put(sessionAction.initialSuccess(data.session.session))
     }
 }
@@ -25,6 +26,8 @@ function* loginSaga() {
     while(true){
         const {payload} = yield take(sessionAction.loginRequest)
         const { data: {login} } = yield call(requestLogin, payload)
+        console.log('session loaded')
+
         if(login.status === 200){
             const cookie = useCookie();
             cookie.set(TOKEN, login[TOKEN])
