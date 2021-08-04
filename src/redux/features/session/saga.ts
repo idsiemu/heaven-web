@@ -4,7 +4,6 @@ import { sessionAction } from './slice';
 import { useCookie } from "next-cookie";
 import { REFRESH_TOKEN, TOKEN } from 'src/assets/utils/ENV';
 
-const cookie = useCookie();
 
 function* watchSessionSaga() {
     yield all([
@@ -27,6 +26,7 @@ function* loginSaga() {
         const {payload} = yield take(sessionAction.loginRequest)
         const { data: {login} } = yield call(requestLogin, payload)
         if(login.status === 200){
+            const cookie = useCookie();
             cookie.set(TOKEN, login[TOKEN])
             cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN])
             yield put(sessionAction.loginSuccess(login.session))
@@ -42,6 +42,7 @@ function* registerSaga() {
         const {payload} = yield take(sessionAction.registerRequest)
         const {data: {register}} = yield call(requestRegister, payload)
         if(register.status === 200){
+            const cookie = useCookie();
             cookie.set(TOKEN, register[TOKEN])
             cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN])
             yield put(sessionAction.registerSuccess(register.session))

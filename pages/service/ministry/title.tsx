@@ -11,6 +11,8 @@ import TextField from '@material-ui/core/TextField';
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns';
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import DatePicker from '@material-ui/lab/DatePicker';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import { HButton } from '@components/button/styled';
 
 const TitleContainer = styled(Container)`
     && {
@@ -22,22 +24,43 @@ const TitleContainer = styled(Container)`
 `;
 
 interface IBrief {
+    open: boolean;
+    value: string;
     when: Date | null;
     content: string;
 }
 
 const Title: React.FC = () => {
-    const [value, setValue] = useState<Date | null>(null);
     const [brief, setBrief] = useState<Array<IBrief>>([
         {
+            open: false,
+            value: '',
             when: new Date(),
             content: ''
         }
     ]);
     const [title, setTitle] = useState('');
-
+    const onChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const { value } = e.target;
+        setTitle(value);
+    };
     const onChangeBriefWhen = (index: number, date: Date | null) => {
         brief[index].when = date;
+        if (date) {
+            const month = date.getMonth() + 1;
+            brief[index].value = `${date.getFullYear()}-${month < 10 ? `0${month}` : month}`;
+        }
+        setBrief(() => [...brief]);
+    };
+
+    const onChangePrevent = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
+        const { value } = e.target;
+        let changed = value.replace(/[^0-9-]/g, '');
+        if (changed.length > 7) {
+            changed = changed.substring(0, 7);
+        }
+        brief[index].when = new Date(`${changed}-01`);
+        brief[index].value = changed;
         setBrief(() => [...brief]);
     };
 
@@ -46,18 +69,35 @@ const Title: React.FC = () => {
         setBrief(() => [...brief]);
     };
 
+    const onClickOpen = (index: number, open: boolean) => {
+        brief[index].open = open;
+        setBrief(() => [...brief]);
+    };
+
+    const onClickRemove = (index: number) => {
+        brief[index].when = null;
+        brief[index].value = '';
+        setBrief(() => [...brief]);
+    };
+
     const onClickPlusBrief = () => {
         brief.push({
+            open: false,
+            value: '',
             when: new Date(),
             content: ''
         });
         setBrief(() => [...brief]);
     };
+
+    const onClickNext = () => {
+        console.log(1234);
+    };
     return (
         <AbstractComponent>
             <TitleContainer>
                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={koLocale}>
-                    <HInput width="100%" label="타이틀" variant="outlined" name="id" />
+                    <HInput width="100%" label="타이틀" variant="outlined" name="id" value={title} onChange={onChangeTitle} />
                     <div style={{ position: 'relative', width: '100%', maxWidth: `${common.size.mobileWidth}px` }}>
                         {brief.map((item, index) => (
                             <div key={index} style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -72,7 +112,30 @@ const Title: React.FC = () => {
                                         onChange={newValue => {
                                             onChangeBriefWhen(index, newValue);
                                         }}
-                                        renderInput={params => <TextField {...params} />}
+                                        onMonthChange={() => onClickOpen(index, false)}
+                                        onClose={() => onClickOpen(index, false)}
+                                        open={item.open}
+                                        renderInput={params => {
+                                            const { label, inputRef } = params;
+                                            return (
+                                                <div style={{ position: 'relative' }}>
+                                                    <TextField
+                                                        label={label}
+                                                        inputRef={inputRef}
+                                                        InputProps={{
+                                                            readOnly: true
+                                                        }}
+                                                        onClick={() => onClickOpen(index, true)}
+                                                        value={item.value}
+                                                        onChange={e => onChangePrevent(e, index)}
+                                                    />
+                                                    <HighlightOffIcon
+                                                        style={{ position: 'absolute', right: 10, height: '100%', width: '30px', color: `${common.colors.lightGrey}`, cursor: 'pointer' }}
+                                                        onClick={() => onClickRemove(index)}
+                                                    />
+                                                </div>
+                                            );
+                                        }}
                                     />
                                 </div>
                                 <HInput
@@ -91,6 +154,11 @@ const Title: React.FC = () => {
                         </Fab>
                     </div>
                 </LocalizationProvider>
+                <div style={{ width: '100%', maxWidth: `${common.size.mobileWidth}px`, textAlign: 'right' }}>
+                    <HButton width="30%" onClick={onClickNext}>
+                        다음
+                    </HButton>
+                </div>
             </TitleContainer>
         </AbstractComponent>
     );
