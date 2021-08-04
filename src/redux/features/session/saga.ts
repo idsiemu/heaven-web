@@ -17,7 +17,6 @@ function* initialSaga() {
     while(true) {
         yield take(sessionAction.initialRequest)
         const { data } = yield call(sessionInit)
-        console.log('session loaded')
         yield put(sessionAction.initialSuccess(data.session.session))
     }
 }
@@ -26,12 +25,10 @@ function* loginSaga() {
     while(true){
         const {payload} = yield take(sessionAction.loginRequest)
         const { data: {login} } = yield call(requestLogin, payload)
-        console.log('session loaded')
-
         if(login.status === 200){
             const cookie = useCookie();
-            cookie.set(TOKEN, login[TOKEN])
-            cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN])
+            cookie.set(TOKEN, login[TOKEN], { path: '/' })
+            cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN], { path: '/' })
             yield put(sessionAction.loginSuccess(login.session))
             yield put(sessionAction.setLocation(login.location))
         }else{
@@ -46,8 +43,8 @@ function* registerSaga() {
         const {data: {register}} = yield call(requestRegister, payload)
         if(register.status === 200){
             const cookie = useCookie();
-            cookie.set(TOKEN, register[TOKEN])
-            cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN])
+            cookie.set(TOKEN, register[TOKEN], { path: '/' })
+            cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN], { path: '/' })
             yield put(sessionAction.registerSuccess(register.session))
             yield put(sessionAction.setLocation(register.location))
         }else{

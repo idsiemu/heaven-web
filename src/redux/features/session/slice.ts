@@ -52,6 +52,7 @@ const sessionSlice = createSlice({
     initialState,
     reducers: {
         initialRequest : (state) => {
+            console.log('init request')
             state.initial = true;
         },
         initialSuccess : (state, { payload }: PayloadAction<ISession>) => {

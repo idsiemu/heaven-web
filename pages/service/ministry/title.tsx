@@ -26,13 +26,13 @@ const TitleContainer = styled(Container)`
     }
 `;
 
-export const GET_TITLE: DocumentNode = gql`
-    query getTitle($idx: Int!) {
-        getTitle(idx: $idx) {
-            status
-        }
-    }
-`;
+// export const GET_TITLE: DocumentNode = gql`
+//     query getTitle($idx: Int!) {
+//         getTitle(idx: $idx) {
+//             status
+//         }
+//     }
+// `;
 
 interface IBrief {
     open: boolean;
@@ -42,7 +42,7 @@ interface IBrief {
 }
 
 const Title: React.FC = () => {
-    const cookie = useCookie();
+    // const cookie = useCookie();
     // const response = gqlQueryInstance(GET_TITLE, cookie, {
     //     variables: { idx: 1 }
     // });
