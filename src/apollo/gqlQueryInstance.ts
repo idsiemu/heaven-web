@@ -1,18 +1,16 @@
-import { DocumentNode, useQuery } from "@apollo/client";
+import { DocumentNode } from "@apollo/client";
 import { NameNode, OperationDefinitionNode } from "graphql";
-import { Cookie } from "next-cookie";
 import { TOKEN } from "src/assets/utils/ENV";
+import { useCookie } from 'next-cookie';
 
-
-const gqlQueryInstance = async(query : DocumentNode, cookie: Cookie, param?: object) => {
-    const {loading, error, data, refetch} = useQuery(query, param)
-    console.log(data)
+const gqlQueryInstance = async(query : DocumentNode, method:any, param?: object) => {
+    const {loading, data, refetch} = method(query, param)
     if(!loading){
         const innerQuery = query.definitions[0] as OperationDefinitionNode
         const { value } = innerQuery.name as NameNode
         if(data[value].status === 201){
-            //쿠키 세션 바꾸고 리페치
-            cookie.set(TOKEN, data[value].token)
+            const cookie = useCookie();
+            cookie.set(TOKEN, data[value].token, { path: '/' })
             const refetched = await refetch()
             return refetched
         }else{

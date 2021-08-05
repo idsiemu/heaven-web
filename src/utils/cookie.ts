@@ -10,7 +10,6 @@ export const getCookieValue = (key:string) => {
   
       if (cookieArr[i].indexOf(cookieKey) === 0) {
         result = cookieArr[i].slice(cookieKey.length, cookieArr[i].length);
-        console.log(result, '??')
         return result;
       }
       

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import AbstractComponent from '@components/abstract';
 import styled from 'styled-components';
 import Container from '@material-ui/core/Container';
@@ -13,9 +13,26 @@ import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import DatePicker from '@material-ui/lab/DatePicker';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { HButton } from '@components/button/styled';
-import { DocumentNode, gql } from '@apollo/client';
-// import gqlQueryInstance from '@apollo/gqlQueryInstance';
+import { DocumentNode, gql, useMutation, useQuery } from '@apollo/client';
+import Progress from '@components/progress';
 import { useCookie } from 'next-cookie';
+import { TOKEN } from 'src/assets/utils/ENV';
+import { useRouter } from 'next/router'
+import { HSnack, ISnack } from '@components/snackbar/styled';
+import { useEffect } from 'react';
+import { NextPageContext } from 'next';
+import { CircularProgress } from '@material-ui/core';
+
+
+
+export const getServerSideProps = async (context:NextPageContext) => {
+    return {
+        props : {
+            query: context?.query,
+            params : {}
+        }
+    };
+  };
 
 const TitleContainer = styled(Container)`
     && {
@@ -26,13 +43,34 @@ const TitleContainer = styled(Container)`
     }
 `;
 
-// export const GET_TITLE: DocumentNode = gql`
-//     query getTitle($idx: Int!) {
-//         getTitle(idx: $idx) {
-//             status
-//         }
-//     }
-// `;
+export const GET_TITLE: DocumentNode = gql`
+    query getTitle($role: Int) {
+        getTitle(role: $role) {
+            status,
+            data,
+            token,
+            errors {
+                code,
+                var,
+                text
+            }
+        }
+    }
+`;
+
+export const SET_TITLE: DocumentNode = gql`
+    mutation setTitle($service:ServiceInput!) {
+        setTitle(service:$service) {
+            status,
+            token,
+            errors {
+                code,
+                var,
+                text
+            }
+        }
+    }
+`
 
 interface IBrief {
     open: boolean;
@@ -41,21 +79,38 @@ interface IBrief {
     content: string;
 }
 
-const Title: React.FC = () => {
-    // const cookie = useCookie();
-    // const response = gqlQueryInstance(GET_TITLE, cookie, {
-    //     variables: { idx: 1 }
-    // });
-    // console.log(response);
+
+interface IParam {
+    role: number,
+    index?: number
+}
+
+
+interface IProps {
+    query: IParam,
+    params: object
+}
+
+
+const Title = (props: IProps) => {
+    const router = useRouter()
+    const { role } = props.query
+    const init = useQuery(GET_TITLE, {
+        variables: { role: Number(role) }
+    })
+
+    const [func, result] = useMutation(SET_TITLE);
+
     const [brief, setBrief] = useState<Array<IBrief>>([
         {
             open: false,
             value: '',
-            when: new Date(),
+            when: null,
             content: ''
         }
     ]);
     const [title, setTitle] = useState('');
+
     const onChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { value } = e.target;
         setTitle(value);
@@ -100,15 +155,68 @@ const Title: React.FC = () => {
         brief.push({
             open: false,
             value: '',
-            when: new Date(),
+            when: null,
             content: ''
         });
         setBrief(() => [...brief]);
     };
 
     const onClickNext = () => {
-        console.log(1234);
+        if(title.length > 0){
+            func({variables:
+                {
+                    service: {
+                        role: Number(role),
+                        title,
+                        brief_history : brief.filter(it => it.content).map(it => ({when : it.when, content: it.content}))
+                    }
+                }
+            })
+        }else{
+            setSnack(prev => ({...prev, message: '타이틀을 입력해주세요.', open:true}))
+            setTimeout(() => setSnack(prev => ({...prev, message: '', open:false})), 2000);
+        }
     };
+
+    const [snack, setSnack] = useState<ISnack>({
+        open: false,
+        vertical: 'bottom',
+        horizontal: 'center',
+        message: ''
+    });
+    const { vertical, horizontal, open, message } = snack;
+
+    useEffect(() => {
+        if(!role){
+            router.push('/login')
+        }
+    }, [])
+
+    useEffect(() => {
+        if(result.data?.setTitle.status === 201){
+            const cookie = useCookie()
+            cookie.set(TOKEN, result.data.setTitle.token, { path: '/'})
+            onClickNext()
+        }else if(result.data?.setTitle.status === 200){
+
+        }
+    }, [result.data])
+
+    if(init.loading){
+        return (
+            <Progress />
+        )
+    }
+
+    if(init.data?.getTitle.status === 201){
+        const cookie = useCookie()
+        cookie.set(TOKEN, init.data.getTitle.token, { path: '/'})
+        init.refetch()
+        return (
+            <Progress />
+        )
+    }
+
     return (
         <AbstractComponent>
             <TitleContainer>
@@ -172,9 +280,10 @@ const Title: React.FC = () => {
                 </LocalizationProvider>
                 <div style={{ width: '100%', maxWidth: `${common.size.mobileWidth}px`, textAlign: 'right' }}>
                     <HButton width="30%" onClick={onClickNext}>
-                        다음
+                        {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '다음'}
                     </HButton>
                 </div>
+                <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
             </TitleContainer>
         </AbstractComponent>
     );
