@@ -1,9 +1,10 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from '@apollo/client/link/context';
 import { REFRESH_TOKEN, TOKEN } from "src/assets/utils/ENV";
 import { getCookieValue } from "src/utils/cookie";
+import { createUploadLink } from 'apollo-upload-client';
 
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
     uri: 'http://localhost:4000/heaven',
 });
 

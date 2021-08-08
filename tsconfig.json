@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "baseUrl": ".",
+    "noImplicitAny": false,
     "paths": {
       "@definitions/*": ["src/definitions/*"],
       "@definitions": ["src/definitions"],

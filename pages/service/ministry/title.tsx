@@ -17,7 +17,6 @@ import { DocumentNode, gql, useMutation } from '@apollo/client';
 import Progress from '@components/progress';
 import { useCookie } from 'next-cookie';
 import { TOKEN } from 'src/assets/utils/ENV';
-import { useRouter } from 'next/router';
 import { HSnack, ISnack } from '@components/snackbar/styled';
 import { useEffect } from 'react';
 import { NextPageContext } from 'next';
@@ -26,11 +25,19 @@ import { NameNode, OperationDefinitionNode } from 'graphql';
 import axiosApiInstance from 'src/axios';
 import { GQL_DOMAIN } from 'src/assets/utils/ENV';
 import GlobalStyle from '@styles/globalStyles';
+import Router from 'next/router';
 
-export const getServerSideProps = async (context: NextPageContext) => {
+export const getServerSideProps = (context: NextPageContext) => {
+    const { role, level } = context.query;
+    if (!(role && level)) {
+        context.res?.writeHead(301, {
+            Location: '/'
+        });
+        context.res?.end();
+    }
     return {
         props: {
-            query: context?.query,
+            query: context.query,
             params: {}
         }
     };
@@ -101,7 +108,6 @@ interface IProps {
 }
 
 const Title = (props: IProps) => {
-    const router = useRouter();
     const { role, idx, level } = props.query as IParam;
 
     const bottomElement = useRef<HTMLDivElement>(null);
@@ -198,7 +204,7 @@ const Title = (props: IProps) => {
 
     useEffect(() => {
         if (!role || !level) {
-            router.push('/login');
+            Router.push('/login');
         } else {
             if (idx && !isNaN(idx)) {
                 const query = `
@@ -285,7 +291,7 @@ const Title = (props: IProps) => {
             cookie.set(TOKEN, result.data.setTitle.token, { path: '/' });
             onClickNext();
         } else if (result.data?.setTitle.status === 200) {
-            router.push(`service/${result.data.setTitle.location}`);
+            Router.push(`/service/${result.data.setTitle.location}`);
         }
     }, [result.data]);
 
