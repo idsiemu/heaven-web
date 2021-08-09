@@ -39,7 +39,7 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             dispatch(sessionAction.setLocation(null));
         };
     }, [session.location]);
-
+    
     return (
         <React.Fragment>
             <Head>
