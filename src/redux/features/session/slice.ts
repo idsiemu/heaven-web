@@ -1,5 +1,5 @@
+import { IError } from '@interfaces';
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IError } from '../error/slice';
 
 interface ISessionState {
     initial: boolean;

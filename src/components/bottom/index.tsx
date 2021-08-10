@@ -1,20 +1,23 @@
 import { FC, useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 
+type state = 'front' | 'end';
 interface IStyle {
     isBottom: boolean;
+    state?: state;
 }
-
 interface IBottomComponent {
-    init: boolean;
+    state?: state;
 }
 
 const BottomStyle = styled.div<IStyle>`
     ${props => css`
         display: flex;
         width: 100%;
+        max-width: 1200px;
         justify-content: ${props.isBottom ? 'space-between' : 'space-between'};
-        ${props.isBottom ? '' : 'position: fixed; padding: 2rem; bottom: 0;'};
+        ${props.isBottom ? '' : 'position: fixed; padding: 0 2rem 2rem; bottom: 0;'};
+        ${props.state && props.state === 'front' ? 'justify-content: flex-end;' : ''}
     `}
 `;
 
@@ -52,7 +55,11 @@ const BottomComponent: FC<IBottomComponent> = props => {
             document.removeEventListener('scroll', bottomEvent);
         };
     }, []);
-    return <BottomStyle isBottom={isBottom}>{props.children}</BottomStyle>;
+    return (
+        <BottomStyle isBottom={isBottom} state={props.state}>
+            {props.children}
+        </BottomStyle>
+    );
 };
 
 export default BottomComponent;

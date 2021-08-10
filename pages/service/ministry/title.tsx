@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import AbstractComponent from '@components/abstract';
 import styled from 'styled-components';
 import Container from '@material-ui/core/Container';
@@ -16,20 +16,22 @@ import { HButton } from '@components/button/styled';
 import { DocumentNode, gql, useMutation } from '@apollo/client';
 import Progress from '@components/progress';
 import { useCookie } from 'next-cookie';
-import { TOKEN } from 'src/assets/utils/ENV';
 import { HSnack, ISnack } from '@components/snackbar/styled';
 import { useEffect } from 'react';
 import { NextPageContext } from 'next';
 import { CircularProgress } from '@material-ui/core';
 import { NameNode, OperationDefinitionNode } from 'graphql';
 import axiosApiInstance from 'src/axios';
-import { GQL_DOMAIN } from 'src/assets/utils/ENV';
+import { GQL_DOMAIN, TOKEN } from 'src/assets/utils/ENV';
 import GlobalStyle from '@styles/globalStyles';
 import Router from 'next/router';
+import { IProps } from '@interfaces';
+import BottomComponent from '@components/bottom';
 
 export const getServerSideProps = (context: NextPageContext) => {
-    const { role, level } = context.query;
-    if (!(role && level)) {
+    const { role, level, idx } = context.query;
+    if (!idx && !(role && level)) {
+        console.log(1234213);
         context.res?.writeHead(301, {
             Location: '/'
         });
@@ -49,28 +51,6 @@ const TitleContainer = styled(Container)`
         flex-direction: column;
         align-items: center;
         padding: 2rem;
-    }
-`;
-
-export const GET_TITLE: DocumentNode = gql`
-    query getTitle($idx: Int) {
-        getTitle(idx: $idx) {
-            status
-            data {
-                idx
-                title
-                brief_history {
-                    when
-                    content
-                }
-            }
-            token
-            errors {
-                code
-                var
-                text
-            }
-        }
     }
 `;
 
@@ -102,15 +82,8 @@ interface IParam {
     level: number;
 }
 
-interface IProps {
-    query: IParam;
-    params: object;
-}
-
 const Title = (props: IProps) => {
     const { role, idx, level } = props.query as IParam;
-
-    const bottomElement = useRef<HTMLDivElement>(null);
 
     const [loading, setLoading] = useState(true);
     const [func, result] = useMutation(SET_TITLE);
@@ -203,87 +176,69 @@ const Title = (props: IProps) => {
     const { vertical, horizontal, open, message } = snack;
 
     useEffect(() => {
-        if (!role || !level) {
-            Router.push('/login');
-        } else {
-            if (idx && !isNaN(idx)) {
-                const query = `
-                    query getTitle($idx: Int!) {
-                        getTitle(idx: $idx) {
-                            status
-                            data {
-                                idx
-                                title
-                                brief_history {
-                                    when
-                                    content
-                                }
-                            }
-                            token
-                            errors {
-                                code
-                                var
-                                text
+        if (idx && !isNaN(idx)) {
+            const query = `
+                query getTitle($idx: Int!) {
+                    getTitle(idx: $idx) {
+                        status
+                        data {
+                            idx
+                            title
+                            brief_history {
+                                when
+                                content
                             }
                         }
-                    }`;
-                const SESSION: DocumentNode = gql`
-                    ${query}
-                `;
-                const innerQuery = SESSION.definitions[0] as OperationDefinitionNode;
-                const { value } = innerQuery.name as NameNode;
+                        token
+                        errors {
+                            code
+                            var
+                            text
+                        }
+                    }
+                }`;
+            const SESSION: DocumentNode = gql`
+                ${query}
+            `;
+            const innerQuery = SESSION.definitions[0] as OperationDefinitionNode;
+            const { value } = innerQuery.name as NameNode;
 
-                axiosApiInstance(value)
-                    .post(`${GQL_DOMAIN}`, {
-                        query: `${query}`,
-                        variables: {
-                            idx: Number(idx)
+            axiosApiInstance(value)
+                .post(`${GQL_DOMAIN}`, {
+                    query: `${query}`,
+                    variables: {
+                        idx: Number(idx)
+                    }
+                })
+                .then(res => {
+                    setLoading(false);
+                    const { data } = res;
+                    const innerData = data[value]?.data;
+                    if (innerData) {
+                        setTitle(innerData.title);
+                        const briefHistory = innerData.brief_history as Array<IBrief>;
+                        if (briefHistory.length > 0) {
+                            setBrief(
+                                briefHistory.map(it => {
+                                    let val = '';
+                                    if (it.when) {
+                                        const dateTime = new Date(it.when);
+                                        const month = dateTime.getMonth() + 1;
+                                        val = `${dateTime.getFullYear()}-${month < 10 ? `0${month}` : month}`;
+                                    }
+                                    return {
+                                        ...it,
+                                        value: val,
+                                        open: false
+                                    };
+                                })
+                            );
                         }
-                    })
-                    .then(res => {
-                        setLoading(false);
-                        const { data } = res;
-                        const innerData = data[value]?.data;
-                        if (innerData) {
-                            setTitle(innerData.title);
-                            const briefHistory = innerData.brief_history as Array<IBrief>;
-                            if (briefHistory.length > 0) {
-                                setBrief(
-                                    briefHistory.map(it => {
-                                        let val = '';
-                                        if (it.when) {
-                                            const dateTime = new Date(it.when);
-                                            const month = dateTime.getMonth() + 1;
-                                            val = `${dateTime.getFullYear()}-${month < 10 ? `0${month}` : month}`;
-                                        }
-                                        return {
-                                            ...it,
-                                            value: val,
-                                            open: false
-                                        };
-                                    })
-                                );
-                            }
-                        }
-                    });
-            }
-            setLoading(false);
+                    }
+                });
         }
-
-        document.addEventListener('scroll', () => bottomEvent());
-
-        return () => {
-            document.removeEventListener('scroll', () => bottomEvent());
-        };
+        setLoading(false);
     }, []);
-
-    const bottomEvent = () => {
-        if (window.innerHeight + window.scrollY + 100 > document.body.offsetHeight) {
-            if (bottomElement.current) {
-                bottomElement.current.style.position = 'initial';
-            }
-        }
-    };
 
     useEffect(() => {
         if (result.data?.setTitle.status === 201) {
@@ -361,11 +316,11 @@ const Title = (props: IProps) => {
                         </Fab>
                     </div>
                 </LocalizationProvider>
-                <div ref={bottomElement} style={{ width: '100%', maxWidth: `${common.size.mobileWidth}px`, textAlign: 'right', position: 'fixed', bottom: '30px' }}>
+                <BottomComponent state="front">
                     <HButton width="30%" onClick={onClickNext} style={{ marginTop: '30px' }}>
                         {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '다음'}
                     </HButton>
-                </div>
+                </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
             </TitleContainer>
         </AbstractComponent>

@@ -1,15 +1,23 @@
 import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
-import Container from '@material-ui/core/Container';
 import { NextPageContext } from 'next';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
-import styled, { css } from 'styled-components';
 import { common } from '@definitions/styled-components';
 import arrayMove from 'array-move';
-import { useState, useRef, Fragment } from 'react';
+import { useState, useRef, Fragment, useEffect } from 'react';
 import { HButton } from '@components/button/styled';
 import BottomComponent from '@components/bottom';
-import { DocumentNode, gql, useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { CircularProgress } from '@material-ui/core';
+import { useCookie } from 'next-cookie';
+import { TOKEN } from 'src/assets/utils/ENV';
+import { ImageItem, StyledImg, ImageContainer, ImageDropArea, ImageList } from './style';
+import { IProps, IParam } from '@interfaces';
+import { SortableList } from './componets';
+import { GET_IMAGES, SET_IMAGES } from './gql';
+import { IImages, IObjectCover } from './type';
+import Progress from '@components/progress';
+import { HSnack, ISnack } from '@components/snackbar/styled';
+import router from 'next/router';
 
 export const getServerSideProps = (context: NextPageContext) => {
     const { idx, level } = context.query;
@@ -27,157 +35,27 @@ export const getServerSideProps = (context: NextPageContext) => {
     };
 };
 
-const ImageItem = styled.div`
-    list-style-type: none;
-    float: left;
-    width: 50%;
-    div {
-        position: relative;
-        span {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: #000;
-            color: #fff;
-            padding: 6px;
-            border-radius: 100%;
-            font-weight: 400;
-            font-size: 14px;
-        }
-        div {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            button {
-                font-size: 13px;
-                padding: 4px 6px;
-                font-weight: 500;
-                cursor: pointer;
-                background: #fff;
-                color: ${({ theme }) => theme.colors.lightGrey};
-                border: 1px solid ${({ theme }) => theme.colors.lightGrey};
-            }
-        }
-    }
-`;
-
-const StyledImg = styled.img`
-    display: block;
-    width: 100%;
-    height: 200px;
-    border-radius: 8px;
-    object-fit: cover;
-    padding: 0.125rem;
-    &:hover {
-        cursor: grab;
-    }
-`;
-
-const ImageContainer = styled(Container)`
-    ${() => css`
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 2rem;
-    `}
-`;
-
-const ImageDropArea = styled.label`
-    ${({ theme }) => css`
-        width: 100%;
-        background: #fff;
-        border: 2px dashed rgba(160, 174, 192, 0.75);
-        height: 200px;
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display: flex;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        cursor: -webkit-grab;
-        cursor: -moz-grab;
-        cursor: grab;
-    `}
-`;
-
-const ImageList = styled.ul`
-    ${({ theme }) => css`
-        display: inline-block;
-        background-color: #f8f9fc;
-        white-space: nowrap;
-        border-radius: 8px;
-        width: 100%;
-        padding: 0.125rem;
-    `}
-`;
-
-const Handle = SortableHandle(({ src }) => {
-    return <StyledImg src={src} />;
-});
-
-const SortableItem = SortableElement(props => {
-    const { value, main } = props;
-    return (
-        <ImageItem>
-            <div>
-                {main && <span>대표</span>}
-                <div>
-                    <button>삭제</button>
-                </div>
-                {props.shouldUseDragHandle && <Handle src={value} />}
-            </div>
-        </ImageItem>
-    );
-});
-
-const SortableList = SortableContainer(props => {
-    const { items, ...restProps } = props;
-    return (
-        <ImageList>
-            {(items as any).map((item, index) => (
-                <SortableItem key={`item-${index}`} index={index} main={index === 0} value={item} {...restProps} />
-            ))}
-        </ImageList>
-    );
-});
-
-interface IParam {
-    idx: number;
-    level: number;
-}
-
-interface IProps {
-    query: IParam;
-    params: object;
-}
-
-export const SET_IMAGES: DocumentNode = gql`
-    mutation setImages($idx: Int!, $images: [Upload!]!) {
-        setImages(idx: $idx, images: $images) {
-            status
-            token
-            errors {
-                code
-                var
-                text
-            }
-        }
-    }
-`;
-
 const Image = (props: IProps) => {
     const { idx } = props.query as IParam;
-
-    const [images, setImages] = useState([
-        'https://d3edy9y3v7d67c.cloudfront.net/rooms/5486/images/960/i37394.jpg',
-        'https://d3edy9y3v7d67c.cloudfront.net/rooms/10651/images/480/i85597.jpeg',
-        'https://d3edy9y3v7d67c.cloudfront.net/rooms/10651/images/480/i85597.jpeg'
-    ]);
+    const [images, setImages] = useState<Array<IImages>>([]);
+    const { loading, data, refetch } = useQuery<IObjectCover, { idx: number }>(GET_IMAGES, {
+        variables: {
+            idx: Number(idx)
+        }
+    });
 
     const onSortEnd = ({ oldIndex, newIndex }) => {
         const tempData = arrayMove(images, oldIndex, newIndex);
         setImages(tempData);
     };
+
+    const [snack, setSnack] = useState<ISnack>({
+        open: false,
+        vertical: 'bottom',
+        horizontal: 'center',
+        message: ''
+    });
+    const { vertical, horizontal, open, message } = snack;
 
     const fileElement = useRef<HTMLInputElement>(null);
     const [attachment, setAttachment] = useState<Array<string>>([]);
@@ -187,6 +65,7 @@ const Image = (props: IProps) => {
         const {
             target: { files }
         } = event;
+        setAttachment([]);
         if (files) {
             for (let i = 0; i < files.length; i++) {
                 const theFile = files[i];
@@ -235,11 +114,67 @@ const Image = (props: IProps) => {
         }
     };
 
+    const onClickPrev = () => {
+        router.push({
+            pathname: '/service/ministry/title',
+            query: {
+                idx,
+                level: 1
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (result.data?.setImages.status === 201) {
+            const cookie = useCookie();
+            cookie.set(TOKEN, result.data.setImages.token, { path: '/' });
+            onClickUpload();
+        } else if (result.data?.setImages.status === 200) {
+            if (fileElement.current) {
+                fileElement.current.value = '';
+                setAttachment([]);
+            }
+            setImages(prev => [...prev].concat(result.data.setImages.data));
+        }
+    }, [result.data]);
+
+    if (loading) {
+        <Progress />;
+    }
+
+    useEffect(() => {
+        if (data) {
+            const {
+                getImages: { status, errors, ...rest }
+            } = data;
+            if (status === 200) {
+                setImages(rest.data);
+            } else if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, rest.token, { path: '/' });
+                refetch();
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [data]);
+
     return (
         <AbstractComponent>
             <GlobalStyle />
             <ImageContainer>
-                <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} />
+                {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} />}
                 <ImageDropArea htmlFor="attach-file">
                     <input id="attach-file" ref={fileElement} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} multiple />
                     <div style={{ margin: 'auto', color: common.colors.lightGrey }}>사진 추가</div>
@@ -258,25 +193,28 @@ const Image = (props: IProps) => {
                         </ImageList>
                     </Fragment>
                 )}
-                <BottomComponent init={attachment.length > 0}>
+                <BottomComponent>
                     {attachment.length > 0 ? (
                         <Fragment>
                             <HButton width="30%" onClick={onClickCancel}>
                                 취소
                             </HButton>
                             <HButton width="30%" onClick={onClickUpload}>
-                                올리기
+                                {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '올리기'}
                             </HButton>
                         </Fragment>
                     ) : (
                         <Fragment>
-                            <HButton width="30%">이전</HButton>
+                            <HButton width="30%" onClick={onClickPrev}>
+                                이전
+                            </HButton>
                             <HButton width="30%" onClick={onClickSubmit}>
                                 다음
                             </HButton>
                         </Fragment>
                     )}
                 </BottomComponent>
+                <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
             </ImageContainer>
         </AbstractComponent>
     );
