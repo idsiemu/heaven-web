@@ -29,13 +29,15 @@ import { IProps } from '@interfaces';
 import BottomComponent from '@components/bottom';
 
 export const getServerSideProps = (context: NextPageContext) => {
-    const { role, level, idx } = context.query;
-    if (!idx && !(role && level)) {
-        console.log(1234213);
-        context.res?.writeHead(301, {
-            Location: '/'
-        });
-        context.res?.end();
+    const { role, idx } = context.query;
+    if (!idx && !role) {
+        if(context.res){
+            context.res.writeHead(301, {
+                Location: '/'
+            });
+            context.res.end();
+
+        }
     }
     return {
         props: {
@@ -50,7 +52,7 @@ const TitleContainer = styled(Container)`
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 2rem;
+        padding: 1.25rem;
     }
 `;
 
@@ -77,13 +79,12 @@ interface IBrief {
 }
 
 interface IParam {
-    role: number;
+    role?: number;
     idx?: number;
-    level: number;
 }
 
 const Title = (props: IProps) => {
-    const { role, idx, level } = props.query as IParam;
+    const { role, idx } = props.query as IParam;
 
     const [loading, setLoading] = useState(true);
     const [func, result] = useMutation(SET_TITLE);
@@ -155,7 +156,6 @@ const Title = (props: IProps) => {
                     service: {
                         idx: Number(idx),
                         role: Number(role),
-                        level: Number(level),
                         title,
                         brief_history: brief.filter(it => it.content).map(it => ({ when: it.when, content: it.content }))
                     }
@@ -241,17 +241,20 @@ const Title = (props: IProps) => {
     }, []);
 
     useEffect(() => {
-        if (result.data?.setTitle.status === 201) {
-            const cookie = useCookie();
-            cookie.set(TOKEN, result.data.setTitle.token, { path: '/' });
-            onClickNext();
-        } else if (result.data?.setTitle.status === 200) {
-            Router.push(`/service/${result.data.setTitle.location}`);
+        if(result.data){
+            const { setTitle : { status, token, location } } = result.data
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickNext();
+            } else if (status === 200) {
+                Router.push(`/service/${location}`);
+            }
         }
     }, [result.data]);
 
     if (loading) {
-        return <Progress />;
+        return <Progress />
     }
 
     return (
@@ -311,7 +314,7 @@ const Title = (props: IProps) => {
                                 />
                             </div>
                         ))}
-                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-25px' }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
+                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-25px', zIndex: 1 }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
                             <AddIcon />
                         </Fab>
                     </div>

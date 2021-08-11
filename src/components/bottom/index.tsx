@@ -35,7 +35,8 @@ const BottomComponent: FC<IBottomComponent> = props => {
     // }
     // let timeout;
     const bottomEvent = () => {
-        if (window.innerHeight + window.scrollY + 200 > document.body.offsetHeight && window.scrollY) {
+        const currentHeight = window.innerHeight + window.scrollY + 85
+        if (currentHeight >= document.body.offsetHeight && window.scrollY) {
             // clearTimeout(timeout);
             // timeout = setTimeout(() => {
             //     setIsBottom(true);

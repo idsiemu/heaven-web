@@ -1,6 +1,5 @@
 export interface IParam {
     idx: number;
-    level: number;
 }
 
 export interface IProps {

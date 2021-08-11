@@ -42,3 +42,18 @@ export const SET_IMAGES: DocumentNode = gql`
         }
     }
 `;
+
+export const CHANGE_IMAGES_ORDER: DocumentNode = gql`
+    mutation changeImagesOrder($idx: Int!, $orders: [Orders!]!) {
+        changeImagesOrder(idx: $idx, orders: $orders) {
+            status
+            location
+            token
+            errors {
+                code
+                var
+                text
+            }
+        }
+    }
+`;

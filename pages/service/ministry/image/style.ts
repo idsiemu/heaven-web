@@ -52,7 +52,7 @@ export const ImageContainer = styled(Container)`
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 2rem;
+        padding: 1.25rem;
     `}
 `;
 

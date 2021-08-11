@@ -13,19 +13,21 @@ import { TOKEN } from 'src/assets/utils/ENV';
 import { ImageItem, StyledImg, ImageContainer, ImageDropArea, ImageList } from './style';
 import { IProps, IParam } from '@interfaces';
 import { SortableList } from './componets';
-import { GET_IMAGES, SET_IMAGES } from './gql';
+import { CHANGE_IMAGES_ORDER, GET_IMAGES, SET_IMAGES } from './gql';
 import { IImages, IObjectCover } from './type';
 import Progress from '@components/progress';
 import { HSnack, ISnack } from '@components/snackbar/styled';
 import router from 'next/router';
 
 export const getServerSideProps = (context: NextPageContext) => {
-    const { idx, level } = context.query;
-    if (!(idx && level)) {
-        context.res?.writeHead(301, {
-            Location: '/'
-        });
-        context.res?.end();
+    const { idx } = context.query;
+    if (!idx) {
+        if(context.res){
+            context.res.writeHead(301, {
+                Location: '/'
+            });
+            context.res.end();
+        }
     }
     return {
         props: {
@@ -86,6 +88,8 @@ const Image = (props: IProps) => {
 
     const [func, result] = useMutation(SET_IMAGES);
 
+    const [changeOrder, ordered] = useMutation(CHANGE_IMAGES_ORDER);
+
     const onClickUpload = () => {
         // 파일 업로드 로직
         if (fileElement.current?.files) {
@@ -103,6 +107,12 @@ const Image = (props: IProps) => {
     };
 
     const onClickSubmit = () => {
+        changeOrder({
+            variables : {
+                idx : Number(idx),
+                orders : images.map((img, index) => ({idx: img.idx, order_by : index}))
+            }
+        })
         // 정렬 완료하고 다음 페이지로
     };
 
@@ -118,30 +128,67 @@ const Image = (props: IProps) => {
         router.push({
             pathname: '/service/ministry/title',
             query: {
-                idx,
-                level: 1
+                idx
             }
         });
     };
 
     useEffect(() => {
-        if (result.data?.setImages.status === 201) {
-            const cookie = useCookie();
-            cookie.set(TOKEN, result.data.setImages.token, { path: '/' });
-            onClickUpload();
-        } else if (result.data?.setImages.status === 200) {
-            if (fileElement.current) {
-                fileElement.current.value = '';
-                setAttachment([]);
+        if(result.data){
+            const { setImages : { status, token, data, errors } } = result.data
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickUpload();
+            } else if (status === 200) {
+                if (fileElement.current) {
+                    fileElement.current.value = '';
+                    setAttachment([]);
+                }
+                setImages(prev => [...prev].concat(data));
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
             }
-            setImages(prev => [...prev].concat(result.data.setImages.data));
         }
     }, [result.data]);
 
-    if (loading) {
-        <Progress />;
-    }
-
+    useEffect(() => {
+        if(ordered.data){
+            const { changeImagesOrder : { status, token, location, errors } } = ordered.data
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickSubmit();
+            } else if (status === 200) {
+                router.push(`/service/${location}`)
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [ordered.data]);
+    
     useEffect(() => {
         if (data) {
             const {
@@ -169,6 +216,14 @@ const Image = (props: IProps) => {
             }
         }
     }, [data]);
+
+    useEffect(() => {
+        refetch()
+    }, [])
+
+    if (loading) {
+        return <Progress />
+    }
 
     return (
         <AbstractComponent>
