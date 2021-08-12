@@ -43,6 +43,20 @@ export const SET_IMAGES: DocumentNode = gql`
     }
 `;
 
+export const DELETE_IMAGE: DocumentNode = gql`
+    mutation deleteImage($idx: Int!) {
+        deleteImage(idx: $idx) {
+            status
+            token
+            errors {
+                code
+                var
+                text
+            }
+        }
+    }
+`;
+
 export const CHANGE_IMAGES_ORDER: DocumentNode = gql`
     mutation changeImagesOrder($idx: Int!, $orders: [Orders!]!) {
         changeImagesOrder(idx: $idx, orders: $orders) {

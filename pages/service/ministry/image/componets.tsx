@@ -6,13 +6,13 @@ export const Handle = SortableHandle(({ src }) => {
 });
 
 export const SortableItem = SortableElement(props => {
-    const { value, main } = props;
+    const { value, main, onClick } = props;
     return (
         <ImageItem>
             <div>
                 {main && <span>대표</span>}
                 <div>
-                    <button>삭제</button>
+                    <button onClick={onClick}>삭제</button>
                 </div>
                 {props.shouldUseDragHandle && <Handle src={value} />}
             </div>
@@ -21,11 +21,11 @@ export const SortableItem = SortableElement(props => {
 });
 
 export const SortableList = SortableContainer(props => {
-    const { items, ...restProps } = props;
+    const { items, onClick, ...restProps } = props;
     return (
         <ImageList>
             {(items as any).map((item, index) => (
-                <SortableItem key={`item-${index}`} index={index} main={index === 0} value={item.m_size ? item.domain + item.m_size : item.domain + item.origin} {...restProps} />
+                <SortableItem key={`item-${index}`} index={index} main={index === 0} value={item.m_size ? item.domain + item.m_size : item.domain + item.origin} {...restProps} onClick={() => onClick(item.idx)}/>
             ))}
         </ImageList>
     );

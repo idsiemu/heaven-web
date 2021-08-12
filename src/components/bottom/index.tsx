@@ -12,12 +12,17 @@ interface IBottomComponent {
 
 const BottomStyle = styled.div<IStyle>`
     ${props => css`
-        display: flex;
         width: 100%;
-        max-width: 420px;
-        justify-content: ${props.isBottom ? 'space-between' : 'space-between'};
-        ${props.isBottom ? '' : 'position: fixed; padding: 0 1.25rem 1.25rem; bottom: 0;'};
-        ${props.state && props.state === 'front' ? 'justify-content: flex-end;' : ''}
+        display: flex;
+        justify-content: center;
+        ${props.isBottom ? '' : 'position: fixed; padding: 0 1.25rem 1.25rem; bottom: 0;'}
+        .inner-bottom {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            ${props.state && props.state === 'front' ? 'justify-content: flex-end;' : ''}
+            max-width: ${`${props.theme.size.mobileWidth}px`};
+        }
     `}
 `;
 
@@ -50,6 +55,7 @@ const BottomComponent: FC<IBottomComponent> = props => {
             setIsBottom(false);
         }
     };
+
     useEffect(() => {
         document.addEventListener('scroll', bottomEvent);
         return () => {
@@ -58,7 +64,9 @@ const BottomComponent: FC<IBottomComponent> = props => {
     }, []);
     return (
         <BottomStyle isBottom={isBottom} state={props.state}>
-            {props.children}
+            <div className="inner-bottom">
+                {props.children}
+            </div>
         </BottomStyle>
     );
 };

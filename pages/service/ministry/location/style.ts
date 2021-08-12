@@ -14,7 +14,7 @@ export const LocationContainer = styled(Container)`
 export const HFormGroup = styled(FormGroup)`
     ${({theme}) => css`
         width: 100%;
-        max-width: 420px;
+        max-width: ${`${theme.size.mobileWidth}px`};
     `}
 `
 

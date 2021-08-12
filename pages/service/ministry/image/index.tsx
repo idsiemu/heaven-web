@@ -13,7 +13,7 @@ import { TOKEN } from 'src/assets/utils/ENV';
 import { ImageItem, StyledImg, ImageContainer, ImageDropArea, ImageList } from './style';
 import { IProps, IParam } from '@interfaces';
 import { SortableList } from './componets';
-import { CHANGE_IMAGES_ORDER, GET_IMAGES, SET_IMAGES } from './gql';
+import { CHANGE_IMAGES_ORDER, DELETE_IMAGE, GET_IMAGES, SET_IMAGES } from './gql';
 import { IImages, IObjectCover } from './type';
 import Progress from '@components/progress';
 import { HSnack, ISnack } from '@components/snackbar/styled';
@@ -88,6 +88,8 @@ const Image = (props: IProps) => {
 
     const [func, result] = useMutation(SET_IMAGES);
 
+    const [del, deleted] = useMutation(DELETE_IMAGE);
+
     const [changeOrder, ordered] = useMutation(CHANGE_IMAGES_ORDER);
 
     const onClickUpload = () => {
@@ -105,6 +107,16 @@ const Image = (props: IProps) => {
             });
         }
     };
+
+    const onClickDelete = (image_idx:number) => {
+        del({
+            variables : {
+                idx : image_idx
+            }
+        })
+    }
+
+    console.log(deleted)
 
     const onClickSubmit = () => {
         changeOrder({
@@ -229,7 +241,7 @@ const Image = (props: IProps) => {
         <AbstractComponent>
             <GlobalStyle />
             <ImageContainer>
-                {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} />}
+                {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} onClick={onClickDelete}/>}
                 <ImageDropArea htmlFor="attach-file">
                     <input id="attach-file" ref={fileElement} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} multiple />
                     <div style={{ margin: 'auto', color: common.colors.lightGrey }}>사진 추가</div>

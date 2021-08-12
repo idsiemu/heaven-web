@@ -20,6 +20,8 @@ export const DescribeArea = styled.textarea`
     border-radius: 6px;
     line-height: inherit;
     min-height: calc(100vh - 475px);
+    max-width: ${props => (`${props.theme.size.mobileWidth}px`)};
+    height: 300px;
 `
 
 export const DescribeH2 = styled.h2`

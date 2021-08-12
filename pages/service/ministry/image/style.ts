@@ -72,6 +72,7 @@ export const ImageDropArea = styled.label`
         cursor: -webkit-grab;
         cursor: -moz-grab;
         cursor: grab;
+        max-width: ${`${theme.size.mobileWidth}px`};
     `}
 `;
 
@@ -83,5 +84,6 @@ export const ImageList = styled.ul`
         border-radius: 8px;
         width: 100%;
         padding: 0.125rem;
+        max-width: ${`${theme.size.mobileWidth}px`};
     `}
 `;
