@@ -8,6 +8,7 @@ const common: BaseTheme = {
     darkGrey: "#282C34",
     blackGrey: "#20232A",
     lightGrey: 'rgba(0, 0, 0, 0.5)',
+    whiteGrey: 'rgba(192,192,192,0.3)',
     white: "#FFFFFF",
     black : '#000000',
     red: '#f44336',

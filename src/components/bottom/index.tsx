@@ -14,9 +14,9 @@ const BottomStyle = styled.div<IStyle>`
     ${props => css`
         display: flex;
         width: 100%;
-        max-width: 1200px;
+        max-width: 420px;
         justify-content: ${props.isBottom ? 'space-between' : 'space-between'};
-        ${props.isBottom ? '' : 'position: fixed; padding: 0 2rem 2rem; bottom: 0;'};
+        ${props.isBottom ? '' : 'position: fixed; padding: 0 1.25rem 1.25rem; bottom: 0;'};
         ${props.state && props.state === 'front' ? 'justify-content: flex-end;' : ''}
     `}
 `;

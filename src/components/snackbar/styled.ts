@@ -1,16 +1,14 @@
 import { SnackbarOrigin, Snackbar } from "@material-ui/core";
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 export interface ISnack extends SnackbarOrigin {
     open: boolean;
     message: string | null
 }
 
 export const HSnack = styled(Snackbar)`
-    && {
-        width: 100%;
+    ${({theme}) => css`
         .MuiSnackbarContent-root{
-            max-width: ${({theme}) => `${theme.size.mobileWidth}px`};
-            width: 100%;
+            width: ${`${theme.size.mobileWidth}px`};
         }
-    }
+    `}
 `

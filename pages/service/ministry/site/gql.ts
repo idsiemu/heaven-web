@@ -1,13 +1,12 @@
 import { DocumentNode, gql } from '@apollo/client';
 
-export const GET_LOCATIONS: DocumentNode = gql`
-    query getLocations($idx: Int!) {
-        getLocations(idx: $idx) {
+export const GET_SITES: DocumentNode = gql`
+    query getSites($idx: Int!) {
+        getSites(idx: $idx) {
             status
             data {
-                idx
-                location
-                state
+                site_name
+                url
             }
             token
             errors {
@@ -19,9 +18,9 @@ export const GET_LOCATIONS: DocumentNode = gql`
     }
 `;
 
-export const SET_LOCATIONS: DocumentNode = gql`
-    mutation setLocations($idx: Int!, $locations: [InputLocation]) {
-        setLocations(idx: $idx, locations: $locations) {
+export const SET_SITES: DocumentNode = gql`
+    mutation setSites($idx: Int!, $sites: [InputSite]) {
+        setSites(idx: $idx, sites: $sites) {
             status
             location
             token

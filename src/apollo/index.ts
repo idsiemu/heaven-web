@@ -44,7 +44,9 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 })
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    addTypename: false
+  }),
   link: concat(authMiddleware, httpLink),
 });
 

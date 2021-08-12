@@ -1,19 +1,20 @@
 import AbstractComponent from "@components/abstract"
 import GlobalStyle from "@styles/globalStyles"
-import { LocationContainer } from "./style"
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { HFormControlLabel, HFormGroup, LocationContainer } from "./style"
 import Checkbox from '@material-ui/core/Checkbox';
 import { NextPageContext } from 'next';
 import { IParam, IProps } from "@interfaces";
-import { useQuery } from "@apollo/client";
-import { GET_LOCATIONS } from "./gql";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_LOCATIONS, SET_LOCATIONS } from "./gql";
 import Progress from "@components/progress";
 import { useEffect, useState } from 'react'
 import { useCookie } from 'next-cookie';
 import { TOKEN } from 'src/assets/utils/ENV';
 import router from 'next/router';
 import { HSnack, ISnack } from '@components/snackbar/styled';
+import { ILocation } from "./type";
+import BottomComponent from "@components/bottom";
+import { HButton } from "@components/button/styled";
 
 export const getServerSideProps = (context: NextPageContext) => {
     const { idx } = context.query;
@@ -35,12 +36,24 @@ export const getServerSideProps = (context: NextPageContext) => {
 
 const Location = (props:IProps) => {
     const { idx } = props.query as IParam
-    const [locations, setLocations] = useState([]);
+    const [locations, setLocations] = useState<Array<ILocation>>([]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = event.target
+        const changed = {...locations[name], state: checked}
+        const [...rest] = locations
+        rest.splice(Number(name), 1, changed)
+        setLocations(rest)
+      };
+
     const { loading, data, refetch } = useQuery(GET_LOCATIONS, {
         variables: {
             idx: Number(idx)
         }
     })
+
+    const [func, result] = useMutation(SET_LOCATIONS);
+
 
     const [snack, setSnack] = useState<ISnack>({
         open: false,
@@ -49,6 +62,15 @@ const Location = (props:IProps) => {
         message: ''
     });
     const { vertical, horizontal, open, message } = snack;
+
+    const onClickNext = () => {
+        func({
+            variables : {
+                idx : Number(idx),
+                locations : locations.filter(lo => lo.state).map(ro => ({idx: ro.idx}))
+            }
+        })
+    }
     
     useEffect(() => {
         if (data) {
@@ -77,7 +99,36 @@ const Location = (props:IProps) => {
             }
         }
     }, [data]);
+
+    useEffect(() => {
+        if(result.data){
+            const { setLocations : { status, location, token, errors } } = result.data
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickNext()
+            } else if (status === 200) {
+                router.push(`/service/${location}`)
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [result.data]);
     
+    useEffect(() => {
+        refetch()
+    }, [])
     
     if (loading) {
         return <Progress />
@@ -87,15 +138,25 @@ const Location = (props:IProps) => {
         <AbstractComponent>
             <GlobalStyle />
             <LocationContainer>
-                <FormGroup>
-                    {locations.map(lo => {
-                        return <FormControlLabel
-                        control={<Checkbox checked={lo.state} name={lo.idx} />}
-                        label={lo.location}
-                    />
+                <HFormGroup>
+                    {locations.map((lo, index) => {
+                        return (
+                            <HFormControlLabel key={index}
+                                data-checked={lo.state}
+                                control={<Checkbox checked={lo.state} onChange={handleChange} name={index.toString()} id={lo.idx.toString()}/>}
+                                label={lo.location}
+                            />
+                        )
                     })}
-                    
-                </FormGroup>
+                </HFormGroup>
+                <BottomComponent>
+                    <HButton width="30%" onClick={() => router.push(`/service/ministry/describe?idx=${idx}`)}>
+                        이전
+                    </HButton>
+                    <HButton width="30%" onClick={onClickNext}>
+                        다음
+                    </HButton>
+                </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
             </LocationContainer>
         </AbstractComponent>
