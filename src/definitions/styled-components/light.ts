@@ -12,7 +12,7 @@ const light: DefaultTheme = {
     headerBg: "#20232A",
     cardsBg: "#FFFFFF",
     textColor: "#000000",
-    dodgerBlue: "#007BFF",
+    dodgerBlue: "#6394f7",
   },
   size: {
     ...common.size

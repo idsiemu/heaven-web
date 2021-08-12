@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import AbstractComponent from '@components/abstract';
-import styled from 'styled-components';
-import Container from '@material-ui/core/Container';
 import { HInput } from '@components/input/styled';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
@@ -27,16 +25,18 @@ import GlobalStyle from '@styles/globalStyles';
 import Router from 'next/router';
 import { IProps } from '@interfaces';
 import BottomComponent from '@components/bottom';
+import { IBrief, IParam } from './type';
+import { TitleContainer } from './style';
+import { SET_TITLE } from './gql';
 
 export const getServerSideProps = (context: NextPageContext) => {
     const { role, idx } = context.query;
     if (!idx && !role) {
-        if(context.res){
+        if (context.res) {
             context.res.writeHead(301, {
                 Location: '/'
             });
             context.res.end();
-
         }
     }
     return {
@@ -46,42 +46,6 @@ export const getServerSideProps = (context: NextPageContext) => {
         }
     };
 };
-
-const TitleContainer = styled(Container)`
-    && {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 1.25rem;
-    }
-`;
-
-export const SET_TITLE: DocumentNode = gql`
-    mutation setTitle($service: ServiceInput!) {
-        setTitle(service: $service) {
-            status
-            token
-            location
-            errors {
-                code
-                var
-                text
-            }
-        }
-    }
-`;
-
-interface IBrief {
-    open: boolean;
-    value: string;
-    when: Date | null;
-    content: string;
-}
-
-interface IParam {
-    role?: number;
-    idx?: number;
-}
 
 const Title = (props: IProps) => {
     const { role, idx } = props.query as IParam;
@@ -241,8 +205,10 @@ const Title = (props: IProps) => {
     }, []);
 
     useEffect(() => {
-        if(result.data){
-            const { setTitle : { status, token, location } } = result.data
+        if (result.data) {
+            const {
+                setTitle: { status, token, location }
+            } = result.data;
             if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, token, { path: '/' });
@@ -254,7 +220,7 @@ const Title = (props: IProps) => {
     }, [result.data]);
 
     if (loading) {
-        return <Progress />
+        return <Progress />;
     }
 
     return (
