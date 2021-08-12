@@ -16,3 +16,8 @@ export interface IImages {
     m_size? : string
     order_by : number
 }
+
+export interface IDelParam {
+    image_idx : number
+    index : number
+}

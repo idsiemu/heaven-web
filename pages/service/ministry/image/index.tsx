@@ -14,7 +14,7 @@ import { ImageItem, StyledImg, ImageContainer, ImageDropArea, ImageList } from '
 import { IProps, IParam } from '@interfaces';
 import { SortableList } from './componets';
 import { CHANGE_IMAGES_ORDER, DELETE_IMAGE, GET_IMAGES, SET_IMAGES } from './gql';
-import { IImages, IObjectCover } from './type';
+import { IDelParam, IImages, IObjectCover } from './type';
 import Progress from '@components/progress';
 import { HSnack, ISnack } from '@components/snackbar/styled';
 import router from 'next/router';
@@ -22,7 +22,7 @@ import router from 'next/router';
 export const getServerSideProps = (context: NextPageContext) => {
     const { idx } = context.query;
     if (!idx) {
-        if(context.res){
+        if (context.res) {
             context.res.writeHead(301, {
                 Location: '/'
             });
@@ -44,6 +44,11 @@ const Image = (props: IProps) => {
         variables: {
             idx: Number(idx)
         }
+    });
+
+    const [delIdx, setDelIdx] = useState({
+        image_idx: 0,
+        index: 0
     });
 
     const onSortEnd = ({ oldIndex, newIndex }) => {
@@ -108,23 +113,23 @@ const Image = (props: IProps) => {
         }
     };
 
-    const onClickDelete = (image_idx:number) => {
+    const onClickDelete = (selector: IDelParam) => {
+        setDelIdx(selector);
         del({
-            variables : {
-                idx : image_idx
+            variables: {
+                idx: selector.image_idx,
+                orders: images.filter((im, index) => index !== selector.index).map((img, index) => ({ idx: img.idx, order_by: index }))
             }
-        })
-    }
-
-    console.log(deleted)
+        });
+    };
 
     const onClickSubmit = () => {
         changeOrder({
-            variables : {
-                idx : Number(idx),
-                orders : images.map((img, index) => ({idx: img.idx, order_by : index}))
+            variables: {
+                idx: Number(idx),
+                orders: images.map((img, index) => ({ idx: img.idx, order_by: index }))
             }
-        })
+        });
         // 정렬 완료하고 다음 페이지로
     };
 
@@ -146,8 +151,10 @@ const Image = (props: IProps) => {
     };
 
     useEffect(() => {
-        if(result.data){
-            const { setImages : { status, token, data, errors } } = result.data
+        if (result.data) {
+            const {
+                setImages: { status, token, data, errors }
+            } = result.data;
             if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, token, { path: '/' });
@@ -176,14 +183,52 @@ const Image = (props: IProps) => {
     }, [result.data]);
 
     useEffect(() => {
-        if(ordered.data){
-            const { changeImagesOrder : { status, token, location, errors } } = ordered.data
+        if (deleted.data) {
+            const {
+                deleteImage: { status, token, errors }
+            } = deleted.data;
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickDelete(delIdx);
+            } else if (status === 200) {
+                setImages(images.filter((im, index) => index !== delIdx.index));
+                setDelIdx({
+                    image_idx: 0,
+                    index: 0
+                });
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setDelIdx({
+                        image_idx: 0,
+                        index: 0
+                    });
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [deleted.data]);
+
+    useEffect(() => {
+        if (ordered.data) {
+            const {
+                changeImagesOrder: { status, token, location, errors }
+            } = ordered.data;
             if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, token, { path: '/' });
                 onClickSubmit();
             } else if (status === 200) {
-                router.push(`/service/${location}`)
+                router.push(`/service/${location}`);
             } else if (errors) {
                 let isBan = false;
                 errors.forEach(err => {
@@ -200,7 +245,7 @@ const Image = (props: IProps) => {
             }
         }
     }, [ordered.data]);
-    
+
     useEffect(() => {
         if (data) {
             const {
@@ -230,18 +275,18 @@ const Image = (props: IProps) => {
     }, [data]);
 
     useEffect(() => {
-        refetch()
-    }, [])
+        refetch();
+    }, []);
 
     if (loading) {
-        return <Progress />
+        return <Progress />;
     }
 
     return (
         <AbstractComponent>
             <GlobalStyle />
             <ImageContainer>
-                {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} onClick={onClickDelete}/>}
+                {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} onClick={onClickDelete} />}
                 <ImageDropArea htmlFor="attach-file">
                     <input id="attach-file" ref={fileElement} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} multiple />
                     <div style={{ margin: 'auto', color: common.colors.lightGrey }}>사진 추가</div>

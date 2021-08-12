@@ -25,7 +25,14 @@ export const SortableList = SortableContainer(props => {
     return (
         <ImageList>
             {(items as any).map((item, index) => (
-                <SortableItem key={`item-${index}`} index={index} main={index === 0} value={item.m_size ? item.domain + item.m_size : item.domain + item.origin} {...restProps} onClick={() => onClick(item.idx)}/>
+                <SortableItem
+                    key={`item-${index}`}
+                    index={index}
+                    main={index === 0}
+                    value={item.m_size ? item.domain + item.m_size : item.domain + item.origin}
+                    {...restProps}
+                    onClick={() => onClick({ image_idx: item.idx, index })}
+                />
             ))}
         </ImageList>
     );

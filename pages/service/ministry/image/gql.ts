@@ -44,8 +44,8 @@ export const SET_IMAGES: DocumentNode = gql`
 `;
 
 export const DELETE_IMAGE: DocumentNode = gql`
-    mutation deleteImage($idx: Int!) {
-        deleteImage(idx: $idx) {
+    mutation deleteImage($idx: Int!, $orders: [Orders!]!) {
+        deleteImage(idx: $idx, orders: $orders) {
             status
             token
             errors {
