@@ -1,7 +1,7 @@
 // #region Global Imports
 import "styled-components";
 // #endregion Global Imports
-type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "lightGrey" | "whiteGrey" | "white" | 'black' | 'red' | 'green';
+type CommonColors = "transparent" | "darkGrey" | "blackGrey" | "lightGrey" | "whiteGrey" | "white" | 'black' | 'red' | 'green' | 'orange';
 
 type CommonSizes = 'mobileWidth'
 

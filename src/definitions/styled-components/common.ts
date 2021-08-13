@@ -12,7 +12,8 @@ const common: BaseTheme = {
     white: "#FFFFFF",
     black : '#000000',
     red: '#f44336',
-    green: 'green'
+    green: 'green',
+    orange: '#ffc042'
   },
   size: {
     mobileWidth : 420

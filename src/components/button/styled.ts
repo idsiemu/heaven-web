@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import Button from '@material-ui/core/Button';
 
 export const BaseButton = styled.button`
@@ -14,17 +14,18 @@ export const BaseButton = styled.button`
 
 interface IButton {
   width?: string;
+  bgColor?: string
 }
 
 export const HButton = styled(Button)<IButton>`
-  width: ${props => props.width};
-  max-width: ${({theme}) => `${theme.size.mobileWidth}px`};
-  height: 55px;
-  && {
-      color: ${({ theme }) => theme.colors.white};
-      background: ${({ theme }) => theme.colors.blackGrey};
-      &:hover {
-          background: ${({ theme }) => theme.colors.lightGrey};
-      }
-  }
+    ${props => css`
+        width: ${props.width};
+        max-width: ${`${props.theme.size.mobileWidth}px`};
+        height: 55px;
+        color: ${props.theme.colors.white};
+        background: ${props.bgColor ? props.theme.colors[props.bgColor] : props.theme.colors.blackGrey};
+        &:hover {
+            background: ${props.theme.colors.lightGrey};
+        }
+    `}
 `;
