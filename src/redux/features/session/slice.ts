@@ -30,12 +30,23 @@ export interface ILoginSession extends ISession {
     refersh_token: string
 }
 
+export interface ISessionAvatar {
+    domain: string,
+    file_serial: string,
+    origin: string,
+    xl_size: string | null,
+    l_size: string | null,
+    m_size: string | null,
+    s_size: string | null,
+    ss_size: string | null
+}
 export interface ISession {
     idx: number;
     id: string;
     name: string;
     email?: string;
     phone?: string;
+    image: Array<ISessionAvatar>
     
 }
 
@@ -112,6 +123,11 @@ const sessionSlice = createSlice({
         },
         setSnack: (state, { payload }: PayloadAction<IError[]| null>) => {
             state.snack = payload
+        },
+        setAvatar: (state, { payload }: PayloadAction<Array<ISessionAvatar>>) => {
+            if(state.session){
+                state.session.image = payload
+            }
         }
     },
 });

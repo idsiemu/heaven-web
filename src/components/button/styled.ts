@@ -14,7 +14,7 @@ export const BaseButton = styled.button`
 
 interface IButton {
   width?: string;
-  bgColor?: string
+  bgcolor?: string
 }
 
 export const HButton = styled(Button)<IButton>`
@@ -23,7 +23,7 @@ export const HButton = styled(Button)<IButton>`
         max-width: ${`${props.theme.size.mobileWidth}px`};
         height: 55px;
         color: ${props.theme.colors.white};
-        background: ${props.bgColor ? props.theme.colors[props.bgColor] : props.theme.colors.blackGrey};
+        background: ${props.bgcolor ? props.theme.colors[props.bgcolor] : props.theme.colors.blackGrey};
         &:hover {
             background: ${props.theme.colors.lightGrey};
         }

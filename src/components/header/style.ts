@@ -6,6 +6,8 @@ export const Wrapper = styled.div`
     top: 0;
     text-align: center;
     border-bottom: 1px solid ${props => props.theme.colors.whiteGrey};
+    z-index: 2;
+    background-color: white;
 `;
 
 export const Icon = styled.div`

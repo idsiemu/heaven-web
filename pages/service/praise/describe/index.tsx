@@ -1,20 +1,18 @@
 import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
-import { HFormControlLabel, HFormGroup, LocationContainer } from './style';
-import Checkbox from '@material-ui/core/Checkbox';
+import { DescribeArea, DescribeContainer, DescribeH2 } from './style';
 import { NextPageContext } from 'next';
-import { IParam, IProps } from '@interfaces';
-import { useQuery, useMutation } from '@apollo/client';
-import { GET_LOCATIONS, SET_LOCATIONS } from './gql';
-import Progress from '@components/progress';
-import { useEffect, useState } from 'react';
-import { useCookie } from 'next-cookie';
-import { TOKEN } from 'src/assets/utils/ENV';
-import router from 'next/router';
-import { HSnack, ISnack } from '@components/snackbar/styled';
-import { ILocation } from './type';
 import BottomComponent from '@components/bottom';
 import { HButton } from '@components/button/styled';
+import { useState, useEffect } from 'react';
+import router from 'next/router';
+import { IParam, IProps } from '@interfaces';
+import { GET_DESCRIBE, SET_DESCRIBE } from './gql';
+import { useQuery, useMutation } from '@apollo/client';
+import Progress from '@components/progress';
+import { useCookie } from 'next-cookie';
+import { TOKEN } from 'src/assets/utils/ENV';
+import { HSnack, ISnack } from '@components/snackbar/styled';
 import Header from '@components/header';
 import { CircularProgress } from '@material-ui/core';
 
@@ -36,25 +34,15 @@ export const getServerSideProps = (context: NextPageContext) => {
     };
 };
 
-const Location = (props: IProps) => {
+const Describe = (props: IProps) => {
     const { idx } = props.query as IParam;
-    const [locations, setLocations] = useState<Array<ILocation>>([]);
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
-        const changed = { ...locations[name], state: checked };
-        const [...rest] = locations;
-        rest.splice(Number(name), 1, changed);
-        setLocations(rest);
+    const [describe, setDescribe] = useState('');
+    const onChangeDescribe = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const { value } = e.target;
+        setDescribe(value);
     };
 
-    const { loading, data, refetch } = useQuery(GET_LOCATIONS, {
-        variables: {
-            idx: Number(idx)
-        }
-    });
-
-    const [func, result] = useMutation(SET_LOCATIONS);
+    const [func, result] = useMutation(SET_DESCRIBE);
 
     const [snack, setSnack] = useState<ISnack>({
         open: false,
@@ -62,13 +50,25 @@ const Location = (props: IProps) => {
         horizontal: 'center',
         message: ''
     });
+
     const { vertical, horizontal, open, message } = snack;
 
+    const { loading, data, refetch } = useQuery(GET_DESCRIBE, {
+        variables: {
+            idx: Number(idx)
+        }
+    });
+
     const onClickNext = () => {
+        if (!describe) {
+            setSnack(prev => ({ ...prev, open: true, message: '상세 설명을 입력해주세요.' }));
+            setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+            return;
+        }
         func({
             variables: {
                 idx: Number(idx),
-                locations: locations.filter(lo => lo.state).map(ro => ({ idx: ro.idx }))
+                describe
             }
         });
     };
@@ -76,10 +76,12 @@ const Location = (props: IProps) => {
     useEffect(() => {
         if (data) {
             const {
-                getLocations: { status, errors, ...rest }
+                getDescribe: { status, errors, ...rest }
             } = data;
             if (status === 200) {
-                setLocations(rest.data);
+                if (rest.data) {
+                    setDescribe(rest.data);
+                }
             } else if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, rest.token, { path: '/' });
@@ -104,7 +106,7 @@ const Location = (props: IProps) => {
     useEffect(() => {
         if (result.data) {
             const {
-                setLocations: { status, location, token, errors }
+                setDescribe: { status, location, token, errors }
             } = result.data;
             if (status === 201) {
                 const cookie = useCookie();
@@ -141,21 +143,11 @@ const Location = (props: IProps) => {
         <AbstractComponent>
             <GlobalStyle />
             <Header />
-            <LocationContainer>
-                <HFormGroup>
-                    {locations.map((lo, index) => {
-                        return (
-                            <HFormControlLabel
-                                key={index}
-                                data-checked={lo.state}
-                                control={<Checkbox checked={lo.state} onChange={handleChange} name={index.toString()} id={lo.idx.toString()} />}
-                                label={lo.location}
-                            />
-                        );
-                    })}
-                </HFormGroup>
+            <DescribeContainer>
+                <DescribeH2>찬양 상세 설명</DescribeH2>
+                <DescribeArea value={describe} onChange={onChangeDescribe} />
                 <BottomComponent>
-                    <HButton width="30%" onClick={() => router.push(`/service/ministry/describe?idx=${idx}`)}>
+                    <HButton width="30%" onClick={() => router.push(`/service/ministry/image?idx=${idx}`)}>
                         이전
                     </HButton>
                     <HButton width="30%" onClick={onClickNext}>
@@ -163,9 +155,9 @@ const Location = (props: IProps) => {
                     </HButton>
                 </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
-            </LocationContainer>
+            </DescribeContainer>
         </AbstractComponent>
     );
 };
 
-export default Location;
+export default Describe;

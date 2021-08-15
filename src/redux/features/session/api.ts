@@ -16,7 +16,17 @@ export const sessionInit = () => {
                     name,
                     email,
                     phone,
-                    gender
+                    gender,
+                    image {
+                        domain,
+                        file_serial,
+                        origin,
+                        xl_size,
+                        l_size,
+                        m_size,
+                        s_size,
+                        ss_size
+                    }
                 },
                 token,
                 errors {

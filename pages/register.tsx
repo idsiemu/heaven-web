@@ -15,6 +15,7 @@ import { IRegisterPayload, sessionAction } from '@redux/features/session/slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@redux/reducers';
 import { HSnack, ISnack } from '@components/snackbar/styled';
+import { replacePhoneNumber } from 'src/utils/utils';
 
 const RegisterContainer = styled(Container)`
     && {
@@ -69,13 +70,6 @@ const Register: React.FC = () => {
         message: ''
     });
     const { vertical, horizontal, open, message } = snack;
-
-    const replacePhoneNumber = (phone: string) => {
-        return phone
-            .replace(/[^0-9]/g, '')
-            .replace(/(^02|^0505|^1[0-9]{3}|^0[0-9]{2})([0-9]+)?([0-9]{4})$/, '$1-$2-$3')
-            .replace('--', '-');
-    };
 
     const onChangeRole = (idx: number) => {
         setRegister(prev => ({ ...prev, role: idx }));
