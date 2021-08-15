@@ -59,7 +59,17 @@ export const requestLogin = ( param:ILoginPayload ) => {
                     name,
                     email,
                     phone,
-                    gender
+                    gender,
+                    image {
+                        domain,
+                        file_serial,
+                        origin,
+                        xl_size,
+                        l_size,
+                        m_size,
+                        s_size,
+                        ss_size
+                    }
                 },
                 location,
                 heaven_token,
