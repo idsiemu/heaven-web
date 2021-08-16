@@ -36,7 +36,9 @@
       "@ENV/*": ["src/assets/util/*"],
       "@ENV": ["src/assets/util"],
       "@axios/*": ["src/axios/*"],
-      "@axios": ["src/axios"]
+      "@axios": ["src/axios"],
+      "@screens/*": ["src/screens/*"],
+      "@screens": ["src/screens"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
