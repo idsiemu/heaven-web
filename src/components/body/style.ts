@@ -6,8 +6,7 @@ export const Body = styled(Container)`
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding-top: 78px;
+        padding: 98px 1.25rem 1.25rem;
         width: 100%;
-        height: 100vh;
     `}
 `;

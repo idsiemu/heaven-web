@@ -19,7 +19,7 @@ export const DescribeArea = styled.textarea`
     box-sizing: border-box;
     border-radius: 6px;
     line-height: inherit;
-    min-height: calc(100vh - 475px);
+    min-height: calc(100% - 475px);
     max-width: ${props => (`${props.theme.size.mobileWidth}px`)};
     height: 300px;
 `

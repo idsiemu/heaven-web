@@ -269,7 +269,7 @@ const Title = (props: IProps) => {
                                 />
                             </div>
                         ))}
-                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-25px', zIndex: 1 }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
+                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-20px', zIndex: 1 }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
                             <AddIcon />
                         </Fab>
                     </div>

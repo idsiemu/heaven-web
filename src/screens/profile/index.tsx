@@ -208,30 +208,28 @@ const Profile = () => {
             ) : (
                 <Fragment>
                     <Body>
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center', padding: '2rem 0' }}>
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label htmlFor="avatar" onClick={onClickAvatar} style={{ cursor: 'pointer' }}>
-                                    {avatarRes.loading ? <CircularProgress size={57} /> : <Avatar style={{ width: '60px', height: '60px' }} src={generateAvatar(session)} />}
-                                </label>
-                                <input ref={fileElement} id="avatar" type="file" style={{ display: 'none' }} onChange={onFileChange} />
-                            </div>
-                            <HInput name="id" label="아이디" width="100%" value={id} InputProps={{ readOnly: true }} />
-                            <HInput name="name" label="이름" width="100%" value={name} onChange={onChangeName} />
-                            <HInput label="연락처" name="phone" width="100%" value={phone} onChange={onChangePhone} inputProps={{ maxLength: 13 }} />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: `${common.size.mobileWidth}px` }}>
-                                {services.map((ser, key) => (
-                                    <HButton width="180px" onClick={() => router.push(`/service/${ser.location}`)} key={key} bgcolor={ser.init ? 'dodgerBlue' : 'orange'}>
-                                        {ser.name}
-                                    </HButton>
-                                ))}
-                            </div>
+                        <div style={{ marginBottom: '2rem' }}>
+                            <label htmlFor="avatar" onClick={onClickAvatar} style={{ cursor: 'pointer' }}>
+                                {avatarRes.loading ? <CircularProgress size={57} /> : <Avatar style={{ width: '60px', height: '60px' }} src={generateAvatar(session)} />}
+                            </label>
+                            <input ref={fileElement} id="avatar" type="file" style={{ display: 'none' }} onChange={onFileChange} />
                         </div>
+                        <HInput name="id" label="아이디" width="100%" value={id} InputProps={{ readOnly: true }} />
+                        <HInput name="name" label="이름" width="100%" value={name} onChange={onChangeName} />
+                        <HInput label="연락처" name="phone" width="100%" value={phone} onChange={onChangePhone} inputProps={{ maxLength: 13 }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: `${common.size.mobileWidth}px` }}>
+                            {services.map((ser, key) => (
+                                <HButton width="160px" onClick={() => router.push(`/service/${ser.location}`)} key={key} bgcolor={ser.init ? 'dodgerBlue' : 'orange'}>
+                                    {ser.name}
+                                </HButton>
+                            ))}
+                        </div>
+                        <BottomComponent state="front">
+                            <HButton width="160px" onClick={onClickEdit}>
+                                {editRes.loading ? <CircularProgress style={{ color: 'white' }} /> : '적용'}
+                            </HButton>
+                        </BottomComponent>
                     </Body>
-                    <BottomComponent state="front">
-                        <HButton width="180px" onClick={onClickEdit}>
-                            {editRes.loading ? <CircularProgress style={{ color: 'white' }} /> : '적용'}
-                        </HButton>
-                    </BottomComponent>
                 </Fragment>
             )}
             <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
