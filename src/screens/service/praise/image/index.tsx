@@ -18,6 +18,7 @@ import Progress from '@components/progress';
 import { HSnack, ISnack } from '@components/snackbar/styled';
 import router from 'next/router';
 import Header from '@components/header';
+import { HH2 } from '@components/text';
 
 const Image = (props: IProps) => {
     const { idx } = props.query as IParam;
@@ -125,7 +126,7 @@ const Image = (props: IProps) => {
 
     const onClickPrev = () => {
         router.push({
-            pathname: '/service/ministry/title',
+            pathname: '/service/praise/brief',
             query: {
                 idx
             }
@@ -269,6 +270,7 @@ const Image = (props: IProps) => {
             <GlobalStyle />
             <Header />
             <ImageContainer>
+                <HH2>홍보 이미지</HH2>
                 {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} onClick={onClickDelete} />}
                 <ImageDropArea htmlFor="attach-file">
                     <input id="attach-file" ref={fileElement} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} multiple />

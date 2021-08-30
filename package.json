@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "localhost": "cp _envs/.env.localhost ./.env && next dev",
+    "localhost": "cp src/envs/.env.localhost ./.env && next dev",
     "dev": "cp src/envs/.env.developement ./.env && next dev",
     "build": "cp src/envs/.env.production ./.env && next build",
     "start": "next start"

@@ -1,5 +1,5 @@
 import { NextPageContext } from 'next';
-import Title from 'src/screens/service/praise/title';
+import Brief from '@screens/service/ministry/brief';
 
 export const getServerSideProps = (context: NextPageContext) => {
     const { role, idx } = context.query;
@@ -19,4 +19,4 @@ export const getServerSideProps = (context: NextPageContext) => {
     };
 };
 
-export default Title;
+export default Brief;

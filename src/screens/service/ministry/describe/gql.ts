@@ -4,7 +4,13 @@ export const GET_DESCRIBE: DocumentNode = gql`
     query getDescribe($idx: Int!) {
         getDescribe(idx: $idx) {
             status
-            data
+            data {
+                describe
+                sites {
+                    site_name
+                    url
+                }
+            }
             token
             errors {
                 code
@@ -16,8 +22,8 @@ export const GET_DESCRIBE: DocumentNode = gql`
 `;
 
 export const SET_DESCRIBE: DocumentNode = gql`
-    mutation setDescribe($idx: Int!, $describe: String!) {
-        setDescribe(idx: $idx, describe: $describe) {
+    mutation setDescribe($idx: Int!, $describe: String!, $sites:[InputSite]) {
+        setDescribe(idx: $idx, describe: $describe, sites: $sites) {
             status
             location
             token

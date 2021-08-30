@@ -97,8 +97,8 @@ export const requestLogin = ( param:ILoginPayload ) => {
 
 export const requestRegister = (param: IRegisterPayload) => {
     const query = `
-        mutation register($id:String!, $password:String!, $phone: String, $name:String!, $role:Int, $device:SessionType!) {
-            register(id:$id, password:$password, phone:$phone, name:$name, role:$role, device:$device) {
+        mutation register($id:String!, $password:String!, $phone: String, $name:String!, $group_name: String, $role:Int, $device:SessionType!) {
+            register(id:$id, password:$password, phone:$phone, name:$name, group_name:$group_name, role:$role, device:$device) {
                 status,
                 session {
                     idx,
@@ -106,7 +106,17 @@ export const requestRegister = (param: IRegisterPayload) => {
                     name,
                     email,
                     phone,
-                    gender
+                    gender,
+                    image {
+                        domain,
+                        file_serial,
+                        origin,
+                        xl_size,
+                        l_size,
+                        m_size,
+                        s_size,
+                        ss_size
+                    }
                 },
                 location,
                 heaven_token,

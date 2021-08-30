@@ -12,6 +12,7 @@ interface ISessionState {
 
 export interface IRegisterPayload {
     id : string;
+    group_name? : string;
     name : string;
     phone? : string;
     password : string;
@@ -47,7 +48,6 @@ export interface ISession {
     email?: string;
     phone?: string;
     image: Array<ISessionAvatar>
-    
 }
 
 const initialState: ISessionState = {
@@ -77,6 +77,7 @@ const sessionSlice = createSlice({
             state.loading = false
             state.session = payload
             state.errors = null
+            state.snack = null
         },
         loginFailure: (state, { payload }: PayloadAction<{status : number, errors : IError[]}>) => {
             state.loading = false;
@@ -105,6 +106,7 @@ const sessionSlice = createSlice({
             state.loading = false
             state.session = payload
             state.errors = null
+            state.snack = null
         },
         registerFailure: (state, { payload }: PayloadAction<{status : number, errors : IError[]}>) => {
             state.loading = false;

@@ -21,20 +21,28 @@ import { NameNode, OperationDefinitionNode } from 'graphql';
 import axiosApiInstance from 'src/axios';
 import { GQL_DOMAIN, TOKEN } from 'src/assets/utils/ENV';
 import GlobalStyle from '@styles/globalStyles';
-import Router from 'next/router';
 import { IProps } from '@interfaces';
 import BottomComponent from '@components/bottom';
 import { IBrief, IParam } from './type';
-import { TitleContainer } from './style';
-import { SET_TITLE } from './gql';
+import { BriefContainer } from './style';
+import { SET_BRIEF } from './gql';
 import Header from '@components/header';
+import router from 'next/router';
+import { HH2 } from '@components/text';
 
-const Title = (props: IProps) => {
+const Brief = (props: IProps) => {
     const { role, idx } = props.query as IParam;
 
     const [isMutate, setIsMutate] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [func, result] = useMutation(SET_TITLE);
+    const [func, result] = useMutation(SET_BRIEF);
+
+    const [name, setName] = useState('');
+
+    const onChangeName = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const { value } = e.target;
+        setName(value);
+    };
 
     const [brief, setBrief] = useState<Array<IBrief>>([
         {
@@ -44,12 +52,7 @@ const Title = (props: IProps) => {
             content: ''
         }
     ]);
-    const [title, setTitle] = useState('');
 
-    const onChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        const { value } = e.target;
-        setTitle(value);
-    };
     const onChangeBriefWhen = (index: number, date: Date | null) => {
         brief[index].when = date;
         if (date) {
@@ -62,7 +65,7 @@ const Title = (props: IProps) => {
 
     const onChangePrevent = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
         const { value } = e.target;
-        console.log(value);
+
         let changed = value.replace(/[^0-9-]/g, '');
         if (changed.length > 7) {
             changed = changed.substring(0, 7);
@@ -101,22 +104,28 @@ const Title = (props: IProps) => {
     };
 
     const onClickNext = () => {
-        if (title.length > 0) {
-            func({
-                variables: {
-                    service: {
-                        idx: Number(idx),
-                        role: Number(role),
-                        title,
-                        brief_history: brief.filter(it => it.content).map(it => ({ when: it.when, content: it.content })),
-                        is_mutate: isMutate
-                    }
-                }
-            });
-        } else {
-            setSnack(prev => ({ ...prev, message: '타이틀을 입력해주세요.', open: true }));
+        if (!name) {
+            setSnack(prev => ({ ...prev, message: '팀 혹은 단체명을 입력해주세요.', open: true }));
             setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+            return;
         }
+        const briefHistory = brief.filter(it => it.content).map(it => ({ when: it.when, content: it.content }));
+        if (briefHistory.length === 0) {
+            setSnack(prev => ({ ...prev, message: '약력을 입력해주세요.', open: true }));
+            setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+            return;
+        }
+        func({
+            variables: {
+                service: {
+                    idx: Number(idx),
+                    role: Number(role),
+                    name,
+                    brief_history: briefHistory,
+                    is_mutate: isMutate
+                }
+            }
+        });
     };
 
     const [snack, setSnack] = useState<ISnack>({
@@ -130,12 +139,12 @@ const Title = (props: IProps) => {
     useEffect(() => {
         if (idx && !isNaN(idx)) {
             const query = `
-                query getTitle($idx: Int!) {
-                    getTitle(idx: $idx) {
+                query getBrief($idx: Int!) {
+                    getBrief(idx: $idx) {
                         status
                         data {
                             idx
-                            title
+                            name
                             brief_history {
                                 when
                                 content
@@ -167,7 +176,7 @@ const Title = (props: IProps) => {
                     const { data } = res;
                     const innerData = data[value]?.data;
                     if (innerData) {
-                        setTitle(innerData.title);
+                        setName(innerData.name);
                         const briefHistory = innerData.brief_history as Array<IBrief>;
                         if (briefHistory.length > 0) {
                             setBrief(
@@ -195,14 +204,27 @@ const Title = (props: IProps) => {
     useEffect(() => {
         if (result.data) {
             const {
-                setTitle: { status, token, location }
+                setBrief: { status, token, location, errors }
             } = result.data;
             if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, token, { path: '/' });
                 onClickNext();
             } else if (status === 200) {
-                Router.push(`/service/${location}`);
+                router.push(`/service/${location}`);
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '500-005') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
             }
         }
     }, [result.data]);
@@ -215,9 +237,10 @@ const Title = (props: IProps) => {
         <AbstractComponent>
             <GlobalStyle />
             <Header />
-            <TitleContainer>
+            <BriefContainer>
+                <HH2>약력</HH2>
                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={koLocale}>
-                    <HInput width="100%" label="타이틀" variant="outlined" name="id" value={title} onChange={onChangeTitle} />
+                    <HInput width="100%" label="팀 혹은 단체명" variant="outlined" name="id" value={name} onChange={onChangeName} />
                     <div style={{ position: 'relative', width: '100%', maxWidth: `${common.size.mobileWidth}px` }}>
                         {brief.map((item, index) => (
                             <div key={index} style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -269,7 +292,7 @@ const Title = (props: IProps) => {
                                 />
                             </div>
                         ))}
-                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-20px', zIndex: 1 }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
+                        <Fab style={{ position: 'absolute', bottom: '-10px', right: '-25px', zIndex: 1 }} color="primary" aria-label="add" onClick={onClickPlusBrief}>
                             <AddIcon />
                         </Fab>
                     </div>
@@ -280,9 +303,9 @@ const Title = (props: IProps) => {
                     </HButton>
                 </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
-            </TitleContainer>
+            </BriefContainer>
         </AbstractComponent>
     );
 };
 
-export default Title;
+export default Brief;

@@ -16,6 +16,7 @@ import BottomComponent from '@components/bottom';
 import { HButton } from '@components/button/styled';
 import Header from '@components/header';
 import { CircularProgress } from '@material-ui/core';
+import { HH2 } from '@components/text';
 
 const Location = (props: IProps) => {
     const { idx } = props.query as IParam;
@@ -92,7 +93,11 @@ const Location = (props: IProps) => {
                 cookie.set(TOKEN, token, { path: '/' });
                 onClickNext();
             } else if (status === 200) {
-                router.push(`/service/${location}`);
+                if (location) {
+                    router.push(`/service/${location}`);
+                } else {
+                    router.push('/');
+                }
             } else if (errors) {
                 let isBan = false;
                 errors.forEach(err => {
@@ -123,6 +128,7 @@ const Location = (props: IProps) => {
             <GlobalStyle />
             <Header />
             <LocationContainer>
+                <HH2>활동지역</HH2>
                 <HFormGroup>
                     {locations.map((lo, index) => {
                         return (
@@ -140,7 +146,7 @@ const Location = (props: IProps) => {
                         이전
                     </HButton>
                     <HButton width="30%" onClick={onClickNext}>
-                        {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '다음'}
+                        {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '완료'}
                     </HButton>
                 </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />

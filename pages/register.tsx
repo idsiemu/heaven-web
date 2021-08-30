@@ -1,4 +1,4 @@
-import { useState, useEffect, KeyboardEvent } from 'react';
+import { useState, useEffect, KeyboardEvent, Fragment } from 'react';
 import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
 import Container from '@material-ui/core/Container';
@@ -46,6 +46,7 @@ const Register: React.FC = () => {
     const dispatch = useDispatch();
     const [register, setRegister] = useState<IRegisterPayload>({
         id: '',
+        group_name: '',
         name: '',
         phone: '',
         password: '',
@@ -143,14 +144,39 @@ const Register: React.FC = () => {
                         일반 회원
                     </ToggleButton>
                     <ToggleButton value={2} style={{ width: '50%', maxWidth: '140px' }} onClick={() => onChangeRole(2)}>
-                        사역
+                        말씀 사역
                     </ToggleButton>
                     <ToggleButton value={3} style={{ width: '50%', maxWidth: '140px' }} onClick={() => onChangeRole(3)}>
-                        찬양
+                        찬양 사역
                     </ToggleButton>
                 </ToggleButtonGroup>
                 <HInput state={validate.id.state} width="100%" label="이메일" variant="outlined" name="id" value={register.id} onChange={onChangeHandler} helperText={validate.id.text} />
-                <HInput state={validate.name.state} width="100%" label="이름" variant="outlined" name="name" value={register.name} onChange={onChangeHandler} helperText={validate.name.text} />
+                {register.role === 3 ? (
+                    <Fragment>
+                        <HInput
+                            state={validate.name.state}
+                            width="100%"
+                            label="팀 혹은 단체명"
+                            variant="outlined"
+                            name="group_name"
+                            value={register.group_name}
+                            onChange={onChangeHandler}
+                            helperText={validate.name.text}
+                        />
+                        <HInput
+                            state={validate.name.state}
+                            width="100%"
+                            label="대표 성명"
+                            variant="outlined"
+                            name="name"
+                            value={register.name}
+                            onChange={onChangeHandler}
+                            helperText={validate.name.text}
+                        />
+                    </Fragment>
+                ) : (
+                    <HInput state={validate.name.state} width="100%" label="이름" variant="outlined" name="name" value={register.name} onChange={onChangeHandler} helperText={validate.name.text} />
+                )}
                 <HInput
                     state={validate.phone.state}
                     width="100%"
