@@ -21,7 +21,7 @@ export const HFormGroup = styled(FormGroup)`
 export const HFormControlLabel = styled(FormControlLabel)`
     ${props => css`
         border-radius: 0.75rem;
-        margin: 0 0 0.5rem -5px;
+        /* margin: 0 0 0.5rem -5px; */
         -webkit-transition: background-color 150ms cubic-bezier(0.4,0,0.2,1) 0ms;
         transition: background-color 150ms cubic-bezier(0.4,0,0.2,1) 0ms;
         background-color : ${props['data-checked'] ? props.theme.colors.whiteGrey : '' };

@@ -7,7 +7,11 @@ export const GET_LOCATIONS: DocumentNode = gql`
             data {
                 idx
                 location
-                state
+                details {
+                    idx
+                    location
+                    state
+                }
             }
             token
             errors {

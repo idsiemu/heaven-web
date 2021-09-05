@@ -6,7 +6,7 @@ import { IParam, IProps } from '@interfaces';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_LOCATIONS, SET_LOCATIONS } from './gql';
 import Progress from '@components/progress';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useCookie } from 'next-cookie';
 import { TOKEN } from 'src/assets/utils/ENV';
 import router from 'next/router';
@@ -17,17 +17,58 @@ import { HButton } from '@components/button/styled';
 import Header from '@components/header';
 import { CircularProgress } from '@material-ui/core';
 import { HH2 } from '@components/text';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 const Location = (props: IProps) => {
     const { idx } = props.query as IParam;
     const [locations, setLocations] = useState<Array<ILocation>>([]);
+    const [isDrop, setIsDrop] = useState(0);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
-        const changed = { ...locations[name], state: checked };
-        const [...rest] = locations;
-        rest.splice(Number(name), 1, changed);
-        setLocations(rest);
+    const onClickDrop = (idx: number) => {
+        if (isDrop === idx) {
+            setIsDrop(0);
+        } else {
+            setIsDrop(idx);
+        }
+    };
+
+    const onClickLocation = (lo_idx: number, de_idx: number, state: boolean) => {
+        if (de_idx < 1) {
+            const changed = locations[lo_idx].details.map(prev => ({ ...prev, state: !state }));
+            setLocations(
+                locations.map((lo, index) => {
+                    if (lo_idx === index) {
+                        return {
+                            ...lo,
+                            details: changed
+                        };
+                    }
+                    return lo;
+                })
+            );
+        } else {
+            const changed = locations[lo_idx].details.map((prev, index) => {
+                if (index === de_idx) {
+                    return {
+                        ...prev,
+                        state: !state
+                    };
+                }
+                return prev;
+            });
+            setLocations(
+                locations.map((lo, index) => {
+                    if (lo_idx === index) {
+                        return {
+                            ...lo,
+                            details: changed
+                        };
+                    }
+                    return lo;
+                })
+            );
+        }
     };
 
     const { loading, data, refetch } = useQuery(GET_LOCATIONS, {
@@ -47,10 +88,18 @@ const Location = (props: IProps) => {
     const { vertical, horizontal, open, message } = snack;
 
     const onClickNext = () => {
+        const array: Array<{ idx: number }> = [];
+        locations.forEach(lo => {
+            lo.details.forEach(de => {
+                if (de.state && de.idx !== -1) {
+                    array.push({ idx: de.idx });
+                }
+            });
+        });
         func({
             variables: {
                 idx: Number(idx),
-                locations: locations.filter(lo => lo.state).map(ro => ({ idx: ro.idx }))
+                locations: array
             }
         });
     };
@@ -129,18 +178,31 @@ const Location = (props: IProps) => {
             <Header />
             <LocationContainer>
                 <HH2>활동지역</HH2>
-                <HFormGroup>
-                    {locations.map((lo, index) => {
-                        return (
-                            <HFormControlLabel
-                                key={index}
-                                data-checked={lo.state}
-                                control={<Checkbox checked={lo.state} onChange={handleChange} name={index.toString()} id={lo.idx.toString()} />}
-                                label={lo.location}
-                            />
-                        );
-                    })}
-                </HFormGroup>
+                {locations.map((lo, index) => {
+                    return (
+                        <Fragment key={index}>
+                            <div
+                                style={{ width: '100%', height: '45px', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                onClick={() => onClickDrop(lo.idx)}
+                            >
+                                {lo.location}
+                                {lo.idx === isDrop ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                            </div>
+                            <HFormGroup style={{ display: `${lo.idx === isDrop ? 'flex' : 'none'}` }}>
+                                {lo.details.map((de, index2) => {
+                                    return (
+                                        <HFormControlLabel
+                                            key={index2}
+                                            data-checked={de.state}
+                                            control={<Checkbox checked={de.state} onClick={() => onClickLocation(index, index2, de.state)} />}
+                                            label={de.location}
+                                        />
+                                    );
+                                })}
+                            </HFormGroup>
+                        </Fragment>
+                    );
+                })}
                 <BottomComponent>
                     <HButton width="30%" onClick={() => router.push(`/service/praise/describe?idx=${idx}`)}>
                         이전
