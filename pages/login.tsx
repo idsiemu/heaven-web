@@ -84,18 +84,18 @@ const Login: React.FC = () => {
         }
     };
 
-    const onSuccess = (data:any) => {
+    const onSuccess = (data: any) => {
         const sendData = {
             access_token: data.response.access_token,
             refresh_token: data.response.refresh_token,
             device: 'WEB'
         };
         dispatch(sessionAction.kakaoRequest(sendData));
-    }
+    };
 
-    const onFailure = (data:any) => {
-        alert(data)
-    }
+    const onFailure = (data: any) => {
+        alert(data);
+    };
 
     useEffect(() => {
         if (session.errors) {
@@ -131,7 +131,8 @@ const Login: React.FC = () => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <LoginContainer onKeyPress={onPressEnter}>
+            {/* <LoginContainer onKeyPress={onPressEnter}> */}
+            <LoginContainer>
                 {/* <HInput state={validate.id.state} name="id" label="이메일" variant="outlined" width={'100%'} value={submit.id} onChange={onChangeHandler} helperText={validate.id.text} />
                 <HInput
                     state={validate.password.state}
