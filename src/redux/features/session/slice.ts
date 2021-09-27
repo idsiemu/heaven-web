@@ -20,6 +20,12 @@ export interface IRegisterPayload {
     role? : number;
     device: 'WEB';
 }
+
+export interface IKakaoPayload {
+    access_token: string
+    refresh_token: string
+    device: string
+}
 export interface ILoginPayload {
     id: string;
     password: string;
@@ -73,7 +79,12 @@ const sessionSlice = createSlice({
             state.loading = true;
             state.errors = null
         },
+        kakaoRequest: (state, _action: PayloadAction<IKakaoPayload>) => {
+            state.loading = true;
+            state.errors = null
+        },
         loginSuccess: (state, { payload }: PayloadAction<ISession>) => {
+            console.log(payload)
             state.loading = false
             state.session = payload
             state.errors = null

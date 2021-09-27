@@ -5,6 +5,7 @@ import { RootState } from '@redux/reducers';
 import Router from 'next/router';
 import Head from 'next/head';
 import Progress from '@components/progress';
+import { ContactSupportOutlined } from '@material-ui/icons';
 
 export interface IAbstractComponent {
     headTitle?: string;
@@ -20,11 +21,11 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             dispatch(sessionAction.initialRequest());
         } else {
             if (!session.session) {
-                if (!(Router.pathname === '/login' || Router.pathname === '/register')) {
+                if (!(Router.pathname === '/login')) {
                     Router.push('/login');
                 }
             } else {
-                if (Router.pathname === '/login' || Router.pathname === '/register') {
+                if (Router.pathname === '/login') {
                     Router.push('/');
                 }
             }
@@ -33,7 +34,7 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
 
     useEffect(() => {
         if (session.location) {
-            Router.push(`service/${session.location}`);
+            Router.push(session.location);
         }
         return () => {
             dispatch(sessionAction.setLocation(null));
@@ -50,9 +51,9 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             ) : (
                 <React.Fragment>
                     {session.session ? (
-                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? <Progress /> : props.children}</React.Fragment>
+                        <React.Fragment>{Router.pathname === '/login' ? <Progress /> : props.children}</React.Fragment>
                     ) : (
-                        <React.Fragment>{Router.pathname === '/login' || Router.pathname === '/register' ? props.children : <Progress />}</React.Fragment>
+                        <React.Fragment>{Router.pathname === '/login' ? props.children : <Progress />}</React.Fragment>
                     )}
                 </React.Fragment>
             )}

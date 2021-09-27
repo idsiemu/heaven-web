@@ -1,6 +1,6 @@
 import { DocumentNode, gql } from "@apollo/client";
 import axiosApiInstance from "src/axios";
-import { ILoginPayload, IRegisterPayload } from "./slice";
+import { IKakaoPayload, ILoginPayload, IRegisterPayload } from "./slice";
 import { GQL_DOMAIN } from "src/assets/utils/ENV";
 import { NameNode, OperationDefinitionNode } from "graphql";
 
@@ -86,6 +86,55 @@ export const requestLogin = ( param:ILoginPayload ) => {
     const innerQuery = LOGIN.definitions[0] as OperationDefinitionNode
     const { value } = innerQuery.name as NameNode
 
+    return axiosApiInstance(value).post(
+        `${GQL_DOMAIN}`,
+        {
+            query: `${query}`,
+            variables: param,
+        },
+    )
+}
+
+
+
+export const requestKakaoLogin = ( param:IKakaoPayload ) => {
+    const query = `
+        mutation kakaoLogin($access_token:String!, $refresh_token:String!, $device: SessionType!) {
+            kakaoLogin(access_token:$access_token, refresh_token:$refresh_token, device:$device) {
+                status,
+                session {
+                    idx,
+                    id,
+                    name,
+                    email,
+                    phone,
+                    gender,
+                    image {
+                        domain,
+                        file_serial,
+                        origin,
+                        xl_size,
+                        l_size,
+                        m_size,
+                        s_size,
+                        ss_size
+                    }
+                },
+                location,
+                heaven_token,
+                refresh_token,
+                errors {
+                    code,
+                    var,
+                    text
+                }
+            }
+        }`;
+    const LOGIN: DocumentNode = gql`${query}`
+
+    const innerQuery = LOGIN.definitions[0] as OperationDefinitionNode
+    const { value } = innerQuery.name as NameNode
+    
     return axiosApiInstance(value).post(
         `${GQL_DOMAIN}`,
         {

@@ -7,8 +7,8 @@ const nextConfig = {
       REFRESH_TOKEN: process.env.REFRESH_TOKEN,
       LANGUAGE_TYPE_NAME: process.env.LANGUAGE_TYPE_NAME,
       GQL_DOMAIN: process.env.GQL_DOMAIN,
-      REST_KEY_KAKAO: process.env.REST_KEY_KAKAO,
-      JS_KEY_KAKAO: process.env.JS_KEY_KAKAO,
+      KAKAO_CLIENT_ID: process.env.KAKAO_CLIENT_ID,
+      KAKAO_JS_KEY: process.env.KAKAO_JS_KEY,
       ENV: process.env.ENV,
     },
 }
