@@ -1,6 +1,6 @@
 import { DocumentNode, gql } from "@apollo/client";
 import axiosApiInstance from "src/axios";
-import { IKakaoPayload, ILoginPayload, IRegisterPayload } from "./slice";
+import { IKakaoPayload, IRegisterPayload } from "./slice";
 import { GQL_DOMAIN } from "src/assets/utils/ENV";
 import { NameNode, OperationDefinitionNode } from "graphql";
 
@@ -26,6 +26,9 @@ export const sessionInit = () => {
                         m_size,
                         s_size,
                         ss_size
+                    },
+                    role {
+                        role_idx
                     }
                 },
                 token,
@@ -45,53 +48,6 @@ export const sessionInit = () => {
         {
             query: `${query}`
         }
-    )
-}
-
-export const requestLogin = ( param:ILoginPayload ) => {
-    const query = `
-        mutation login($id:String!, $password:String!, $device:SessionType!) {
-            login(id:$id, password:$password, device:$device) {
-                status,
-                session {
-                    idx,
-                    id,
-                    name,
-                    email,
-                    phone,
-                    gender,
-                    image {
-                        domain,
-                        file_serial,
-                        origin,
-                        xl_size,
-                        l_size,
-                        m_size,
-                        s_size,
-                        ss_size
-                    }
-                },
-                location,
-                heaven_token,
-                refresh_token,
-                errors {
-                    code,
-                    var,
-                    text
-                }
-            }
-        }`;
-    const LOGIN: DocumentNode = gql`${query}`
-
-    const innerQuery = LOGIN.definitions[0] as OperationDefinitionNode
-    const { value } = innerQuery.name as NameNode
-
-    return axiosApiInstance(value).post(
-        `${GQL_DOMAIN}`,
-        {
-            query: `${query}`,
-            variables: param,
-        },
     )
 }
 
@@ -118,6 +74,9 @@ export const requestKakaoLogin = ( param:IKakaoPayload ) => {
                         m_size,
                         s_size,
                         ss_size
+                    },
+                    role {
+                        role_idx
                     }
                 },
                 location,
@@ -165,6 +124,9 @@ export const requestRegister = (param: IRegisterPayload) => {
                         m_size,
                         s_size,
                         ss_size
+                    },
+                    role {
+                        role_idx
                     }
                 },
                 location,

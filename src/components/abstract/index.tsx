@@ -5,7 +5,6 @@ import { RootState } from '@redux/reducers';
 import Router from 'next/router';
 import Head from 'next/head';
 import Progress from '@components/progress';
-import { ContactSupportOutlined } from '@material-ui/icons';
 
 export interface IAbstractComponent {
     headTitle?: string;
@@ -22,24 +21,18 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
         } else {
             if (!session.session) {
                 if (!(Router.pathname === '/login')) {
-                    Router.push('/login');
+                    Router.replace('/login');
                 }
             } else {
                 if (Router.pathname === '/login') {
-                    Router.push('/');
+                    Router.replace(session.location ? `/intro${session.location}` : '/');
                 }
             }
-        }
-    }, [session.initial, session.session]);
-
-    useEffect(() => {
-        if (session.location) {
-            Router.push(session.location);
         }
         return () => {
             dispatch(sessionAction.setLocation(null));
         };
-    }, [session.location]);
+    }, [session.initial, session.session]);
 
     return (
         <React.Fragment>

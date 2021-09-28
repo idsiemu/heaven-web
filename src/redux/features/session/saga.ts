@@ -1,5 +1,5 @@
 import { all, call, fork, put, take } from 'redux-saga/effects';
-import { requestKakaoLogin, requestLogin, requestRegister, sessionInit } from './api';
+import { requestKakaoLogin, sessionInit } from './api';
 import { sessionAction } from './slice';
 import { useCookie } from "next-cookie";
 import { REFRESH_TOKEN, TOKEN } from 'src/assets/utils/ENV';
@@ -7,10 +7,8 @@ import { REFRESH_TOKEN, TOKEN } from 'src/assets/utils/ENV';
 
 function* watchSessionSaga() {
     yield all([
-        fork(loginSaga),
         fork(kakaoSaga),
         fork(initialSaga),
-        fork(registerSaga)
     ]);
 }
 
@@ -30,42 +28,9 @@ function* kakaoSaga() {
             const cookie = useCookie();
             cookie.set(TOKEN, kakaoLogin[TOKEN], { path: '/' })
             cookie.set(REFRESH_TOKEN, kakaoLogin[REFRESH_TOKEN], { path: '/' })
-            yield put(sessionAction.loginSuccess(kakaoLogin.session))
-            yield put(sessionAction.setLocation(kakaoLogin.location))
+            yield put(sessionAction.loginSuccess({session : kakaoLogin.session, location : kakaoLogin.location}))
         }else{
             yield put(sessionAction.loginFailure({status: kakaoLogin.status, errors : kakaoLogin.errors}))
-        }
-    }
-}
-
-function* loginSaga() {
-    while(true){
-        const {payload} = yield take(sessionAction.loginRequest)
-        const { data: {login} } = yield call(requestLogin, payload)
-        if(login.status === 200){
-            const cookie = useCookie();
-            cookie.set(TOKEN, login[TOKEN], { path: '/' })
-            cookie.set(REFRESH_TOKEN, login[REFRESH_TOKEN], { path: '/' })
-            yield put(sessionAction.loginSuccess(login.session))
-            yield put(sessionAction.setLocation(login.location))
-        }else{
-            yield put(sessionAction.loginFailure({status: login.status, errors : login.errors}))
-        }
-    }
-}
-
-function* registerSaga() {
-    while(true) {
-        const {payload} = yield take(sessionAction.registerRequest)
-        const {data: {register}} = yield call(requestRegister, payload)
-        if(register.status === 200){
-            const cookie = useCookie();
-            cookie.set(TOKEN, register[TOKEN], { path: '/' })
-            cookie.set(REFRESH_TOKEN, register[REFRESH_TOKEN], { path: '/' })
-            yield put(sessionAction.registerSuccess(register.session))
-            yield put(sessionAction.setLocation(register.location))
-        }else{
-            yield put(sessionAction.registerFailure({status: register.status, errors : register.errors}))
         }
     }
 }

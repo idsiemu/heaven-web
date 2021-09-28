@@ -9,14 +9,20 @@ import router from 'next/router';
 import { useCookie } from 'next-cookie';
 import { TOKEN } from 'src/assets/utils/ENV';
 import { HSnack, ISnack } from '@components/snackbar/styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@redux/reducers';
+import { sessionAction } from '@redux/actions';
+import GlobalStyle from '@styles/globalStyles';
+import Header from '@components/header';
+import { common } from '@definitions/styled-components';
 
 const MyRoleContainer = styled(Container)`
     && {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        max-width: 440px;
-        padding: 2rem;
+        max-width: ${common.size.mobileWidth + 'px'};
+        padding: 98px 1.25rem;
     }
 `;
 
@@ -24,6 +30,11 @@ const SET_ROLE: DocumentNode = gql`
     mutation setRole($role: Int!) {
         setRole(role: $role) {
             status
+            data {
+                role {
+                    role_idx
+                }
+            }
             token
             location
             errors {
@@ -36,6 +47,9 @@ const SET_ROLE: DocumentNode = gql`
 `;
 
 const myRole: React.FC = () => {
+    const session = useSelector((state: RootState) => state.sessionReducer);
+    const dispatch = useDispatch();
+
     const [func, result] = useMutation(SET_ROLE);
 
     const [role, setRole] = useState(1);
@@ -54,24 +68,38 @@ const myRole: React.FC = () => {
     const onClickNext = () => {
         func({
             variables: {
-                service: {
-                    role: role
-                }
+                role
             }
         });
     };
 
     useEffect(() => {
+        if (session.session) {
+            let myRole = 1;
+            session.session.role.some(ro => {
+                if (ro.role_idx !== 1) {
+                    myRole = ro.role_idx;
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            setRole(myRole);
+        }
+    }, [session.session]);
+
+    useEffect(() => {
         if (result.data) {
             const {
-                setBrief: { status, token, location, errors }
+                setRole: { status, token, location, errors, ...rest }
             } = result.data;
             if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, token, { path: '/' });
                 onClickNext();
             } else if (status === 200) {
-                router.push(location);
+                dispatch(sessionAction.setRole(rest.data.role));
+                router.push(`/intro${location}`);
             } else if (errors) {
                 setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
                 setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
@@ -80,6 +108,8 @@ const myRole: React.FC = () => {
     }, [result.data]);
     return (
         <AbstractComponent>
+            <GlobalStyle />
+            <Header />
             <MyRoleContainer>
                 <ToggleButtonGroup value={role} exclusive style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }} orientation="vertical">
                     <ToggleButton value={1} style={{ width: '100%' }} onClick={() => onChangeRole(1)}>
@@ -92,7 +122,7 @@ const myRole: React.FC = () => {
                         찬양 사역
                     </ToggleButton>
                 </ToggleButtonGroup>
-                <HButton width="30%" style={{ marginTop: '30px' }}>
+                <HButton width="30%" style={{ marginTop: '1.25rem' }} onClick={onClickNext}>
                     다음
                 </HButton>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />

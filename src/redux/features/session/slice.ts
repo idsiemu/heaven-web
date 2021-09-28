@@ -4,7 +4,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface ISessionState {
     initial: boolean;
     loading: boolean;
-    location?: string | null;
+    location: string | null;
     session: ISession | null;
     errors: IError[] | null;
     snack : IError[] | null;
@@ -26,16 +26,6 @@ export interface IKakaoPayload {
     refresh_token: string
     device: string
 }
-export interface ILoginPayload {
-    id: string;
-    password: string;
-    device: 'WEB';
-};
-
-export interface ILoginSession extends ISession {
-    heaven_token: string
-    refersh_token: string
-}
 
 export interface ISessionAvatar {
     domain: string,
@@ -47,19 +37,24 @@ export interface ISessionAvatar {
     s_size: string | null,
     ss_size: string | null
 }
+export interface ISessionRole {
+    role_idx: number
+}
 export interface ISession {
     idx: number;
     id: string;
-    name: string;
+    name?: string;
     email?: string;
     phone?: string;
-    image: Array<ISessionAvatar>
+    image: Array<ISessionAvatar>;
+    role: Array<ISessionRole>;
 }
 
 const initialState: ISessionState = {
     initial: true,
     loading: false,
     session: null,
+    location: null,
     errors : null,
     snack: null
 };
@@ -75,18 +70,14 @@ const sessionSlice = createSlice({
             state.initial = false;
             state.session = payload
         },
-        loginRequest: (state, _action: PayloadAction<ILoginPayload>) => {
-            state.loading = true;
-            state.errors = null
-        },
         kakaoRequest: (state, _action: PayloadAction<IKakaoPayload>) => {
             state.loading = true;
             state.errors = null
         },
-        loginSuccess: (state, { payload }: PayloadAction<ISession>) => {
-            console.log(payload)
+        loginSuccess: (state, { payload }: PayloadAction<{session : ISession, location : null | string}>) => {
             state.loading = false
-            state.session = payload
+            state.session = payload.session
+            state.location = payload.location
             state.errors = null
             state.snack = null
         },
@@ -109,24 +100,6 @@ const sessionSlice = createSlice({
             state.loading = false;
             state.errors = payload
         },
-        registerRequest : (state, _action:PayloadAction<IRegisterPayload>) => {
-            state.loading = true
-            state.errors = null
-        },
-        registerSuccess: (state, { payload }: PayloadAction<ISession>) => {
-            state.loading = false
-            state.session = payload
-            state.errors = null
-            state.snack = null
-        },
-        registerFailure: (state, { payload }: PayloadAction<{status : number, errors : IError[]}>) => {
-            state.loading = false;
-            if(payload.status === 400){
-                state.errors = payload.errors
-            }else {
-                state.snack = payload.errors
-            }
-        },
         clearError: (state) => {
             state.errors = null
             state.snack = null
@@ -141,7 +114,17 @@ const sessionSlice = createSlice({
             if(state.session){
                 state.session.image = payload
             }
-        }
+        },
+        setRole: (state, { payload }: PayloadAction<Array<ISessionRole>>) => {
+            if(state.session){
+                state.session.role = payload
+            }
+        },
+        setName: (state, { payload }: PayloadAction<string|null>) => {
+            if(state.session){
+                state.session.name = payload ? payload : ''
+            }
+        },
     },
 });
 
