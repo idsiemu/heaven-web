@@ -20,7 +20,7 @@ import { HH2 } from '@components/text';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
-const Location = (props: IProps) => {
+const Location: React.FC<IProps> = props => {
     const { idx } = props.query as IParam;
     const [locations, setLocations] = useState<Array<ILocation>>([]);
     const [isDrop, setIsDrop] = useState(0);
@@ -175,7 +175,7 @@ const Location = (props: IProps) => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             <LocationContainer>
                 <HH2>활동지역</HH2>
                 {locations.map((lo, index) => {

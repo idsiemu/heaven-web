@@ -7,14 +7,21 @@ import { RootState } from '@redux/reducers';
 import generateAvatar from 'src/utils/avatar';
 import { Fragment } from 'react';
 import ArrowBack from '@material-ui/icons/ArrowBack';
-const Header: React.FC = () => {
+import { IHeader } from './type';
+
+const Header: React.FC<IHeader> = props => {
     const { session } = useSelector((state: RootState) => state.sessionReducer);
 
+    const onClickBack = () => {
+        if (props.history.length === 1 && props.back_url) {
+            router.push(props.back_url);
+        } else {
+            router.back();
+        }
+    };
     return (
         <Wrapper>
-            <BackBtn>
-                <ArrowBack fontSize="large" onClick={() => router.back()} />
-            </BackBtn>
+            <BackBtn>{(props.history.length > 1 || props.back_url) && <ArrowBack fontSize="large" onClick={onClickBack} />}</BackBtn>
             {router.pathname.indexOf('/intro') === -1 && (
                 <Fragment>
                     <Icon>

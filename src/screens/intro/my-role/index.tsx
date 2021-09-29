@@ -15,6 +15,7 @@ import { sessionAction } from '@redux/actions';
 import GlobalStyle from '@styles/globalStyles';
 import Header from '@components/header';
 import { common } from '@definitions/styled-components';
+import { IProps } from '@interfaces';
 
 const MyRoleContainer = styled(Container)`
     && {
@@ -46,7 +47,7 @@ const SET_ROLE: DocumentNode = gql`
     }
 `;
 
-const myRole: React.FC = () => {
+const myRole: React.FC<IProps> = props => {
     const session = useSelector((state: RootState) => state.sessionReducer);
     const dispatch = useDispatch();
 
@@ -109,7 +110,7 @@ const myRole: React.FC = () => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             <MyRoleContainer>
                 <ToggleButtonGroup value={role} exclusive style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }} orientation="vertical">
                     <ToggleButton value={1} style={{ width: '100%' }} onClick={() => onChangeRole(1)}>

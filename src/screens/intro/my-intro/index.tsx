@@ -15,6 +15,7 @@ import { sessionAction } from '@redux/actions';
 import { common } from '@definitions/styled-components';
 import GlobalStyle from '@styles/globalStyles';
 import Header from '@components/header';
+import { IProps } from '@interfaces';
 
 const MyIntroContainer = styled(Container)`
     && {
@@ -44,7 +45,7 @@ const SET_MY_ROLE: DocumentNode = gql`
     }
 `;
 
-const myIntro: React.FC = () => {
+const myIntro: React.FC<IProps> = props => {
     const session = useSelector((state: RootState) => state.sessionReducer);
     const dispatch = useDispatch();
 
@@ -116,7 +117,7 @@ const myIntro: React.FC = () => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} back_url="/intro/my-role" />
             <MyIntroContainer>
                 <HInput width="100%" label={role === 3 ? '대표명' : '이름'} variant="outlined" name="name" value={name} onChange={onChangeName} />
                 <HButton width="30%" style={{ marginTop: '1.25rem' }} onClick={onClickNext}>

@@ -30,7 +30,7 @@ import Header from '@components/header';
 import router from 'next/router';
 import { HH2 } from '@components/text';
 
-const Brief = (props: IProps) => {
+const Brief: React.FC<IProps> = props => {
     const { role, idx } = props.query as IParam;
 
     const [isMutate, setIsMutate] = useState(false);
@@ -236,7 +236,7 @@ const Brief = (props: IProps) => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             <BriefContainer>
                 <HH2>약력</HH2>
                 <LocalizationProvider dateAdapter={AdapterDateFns} locale={koLocale}>

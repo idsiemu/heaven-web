@@ -20,7 +20,7 @@ import router from 'next/router';
 import Header from '@components/header';
 import { HH2 } from '@components/text';
 
-const Image = (props: IProps) => {
+const Image: React.FC<IProps> = props => {
     const { idx } = props.query as IParam;
     const [images, setImages] = useState<Array<IImages>>([]);
     const { loading, data, refetch } = useQuery<IObjectCover, { idx: number }>(GET_IMAGES, {
@@ -268,7 +268,7 @@ const Image = (props: IProps) => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             <ImageContainer>
                 <HH2>홍보 이미지</HH2>
                 {images.length > 0 && <SortableList shouldUseDragHandle useDragHandle axis="xy" items={images} onSortEnd={onSortEnd} onClick={onClickDelete} />}

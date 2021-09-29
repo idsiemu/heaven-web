@@ -19,7 +19,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { common } from '@definitions/styled-components';
 import { ISite } from './type';
 
-const Describe = (props: IProps) => {
+const Describe: React.FC<IProps> = props => {
     const { idx } = props.query as IParam;
     const [describe, setDescribe] = useState('');
 
@@ -166,7 +166,7 @@ const Describe = (props: IProps) => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             <DescribeContainer>
                 <DescribeH2>사역 상세 설명</DescribeH2>
                 <DescribeArea value={describe} onChange={onChangeDescribe} />

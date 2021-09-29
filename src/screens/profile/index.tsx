@@ -22,8 +22,9 @@ import { RootState } from '@redux/reducers';
 import generateAvatar from 'src/utils/avatar';
 import { sessionAction } from '@redux/actions';
 import { replacePhoneNumber } from 'src/utils/utils';
+import { IProps } from '@interfaces';
 
-const Profile = () => {
+const Profile: React.FC<IProps> = props => {
     const { session } = useSelector((state: RootState) => state.sessionReducer);
     const dispatch = useDispatch();
     const { loading, data, refetch } = useQuery(GET_PROFILE);
@@ -202,7 +203,7 @@ const Profile = () => {
     return (
         <AbstractComponent>
             <GlobalStyle />
-            <Header />
+            <Header history={props.history} />
             {loading ? (
                 <Progress />
             ) : (

@@ -66,9 +66,10 @@ const sessionSlice = createSlice({
         initialRequest : (state) => {
             state.initial = true;
         },
-        initialSuccess : (state, { payload }: PayloadAction<ISession>) => {
+        initialSuccess : (state, { payload }: PayloadAction<{session : ISession, location : null | string}>) => {
             state.initial = false;
-            state.session = payload
+            state.session = payload.session
+            state.location = payload.location
         },
         kakaoRequest: (state, _action: PayloadAction<IKakaoPayload>) => {
             state.loading = true;

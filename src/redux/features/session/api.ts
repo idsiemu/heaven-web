@@ -31,6 +31,7 @@ export const sessionInit = () => {
                         role_idx
                     }
                 },
+                location,
                 token,
                 errors {
                     code,

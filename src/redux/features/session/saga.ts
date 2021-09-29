@@ -16,7 +16,7 @@ function* initialSaga() {
     while(true) {
         yield take(sessionAction.initialRequest)
         const { data } = yield call(sessionInit)
-        yield put(sessionAction.initialSuccess(data.session.session))
+        yield put(sessionAction.initialSuccess({session : data.session.session, location: data.session.location}))
     }
 }
 

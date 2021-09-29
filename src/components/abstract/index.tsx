@@ -21,11 +21,16 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
         } else {
             if (!session.session) {
                 if (!(Router.pathname === '/login')) {
-                    Router.replace('/login');
+                    Router.replace('/login?replace=true', '/login');
                 }
             } else {
                 if (Router.pathname === '/login') {
-                    Router.replace(session.location ? `/intro${session.location}` : '/');
+                    const replaced = session.location ? session.location : '/';
+                    Router.replace(`${replaced}?replace=true`, replaced);
+                } else {
+                    if (session.location) {
+                        Router.replace(`${session.location}?replace=true`, session.location);
+                    }
                 }
             }
         }
