@@ -16,7 +16,19 @@ const Header: React.FC<IHeader> = props => {
         if (props.history.length === 1 && props.back_url) {
             router.push(props.back_url);
         } else {
-            router.back();
+            if (props.back_url) {
+                if (props.back_url.indexOf('/intro') === -1) {
+                    router.back();
+                } else {
+                    if (props.history.includes(props.back_url)) {
+                        router.back();
+                    } else {
+                        router.push(props.back_url);
+                    }
+                }
+            } else {
+                router.back();
+            }
         }
     };
     return (
