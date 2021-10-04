@@ -14,7 +14,7 @@ import GlobalStyle from '@styles/globalStyles';
 import Header from '@components/header';
 import { common } from '@definitions/styled-components';
 import { IProps } from '@interfaces';
-import { FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
 import { HInput } from '@components/input/styled';
 import { NameNode, OperationDefinitionNode } from 'graphql';
 import axiosApiInstance from 'src/axios';
@@ -45,6 +45,21 @@ const CHURCH_PAGE_SET: DocumentNode = gql`
                     address_road
                 }
             }
+            token
+            errors {
+                code
+                var
+                text
+            }
+        }
+    }
+`;
+
+const SET_MY_CHURCH: DocumentNode = gql`
+    mutation setMyChurch($church_idx: Int!) {
+        setMyChurch(church_idx: $church_idx) {
+            status
+            location
             token
             errors {
                 code
@@ -106,17 +121,22 @@ interface ChurchInfo {
 
 const myChurch: React.FC<IProps> = props => {
     const { data, refetch } = useQuery(CHURCH_PAGE_SET);
+    const [func, result] = useMutation(SET_MY_CHURCH);
 
     const [location, setLocation] = useState(0);
     const [locations, setLocations] = useState<Array<{ idx: number; location: string }>>([]);
+    const [myChurch, setMyChurch] = useState<ChurchInfo | null>(null);
     const [detail, setDetail] = useState('전체');
     const [details, setDetails] = useState([]);
-    const [church, setChurch] = useState('');
+    const [churchName, setChurchName] = useState('');
     const [churchList, setChurchList] = useState<Array<ChurchInfo>>([]);
     const [churchIdx, setChurchIdx] = useState(0);
+
     const onChangeLocation = e => {
         const { value } = e.target;
         setLocation(value);
+        setDetail('전체');
+        setDetails([]);
     };
 
     const onChangeDetail = e => {
@@ -124,9 +144,9 @@ const myChurch: React.FC<IProps> = props => {
         setDetail(value);
     };
 
-    const onChangeChurch = e => {
+    const onChangeChurchName = e => {
         const { value } = e.target;
-        setChurch(value);
+        setChurchName(value);
     };
 
     const onChangeChurchIdx = e => {
@@ -142,22 +162,44 @@ const myChurch: React.FC<IProps> = props => {
     });
     const { vertical, horizontal, open, message } = snack;
 
-    const onClickSubmit = () => {
-        if (location) {
-            if (church) {
+    const loadDetail = (idx: number) => {
+        const innerQuery = DETAIL_LOCATIONN.definitions[0] as OperationDefinitionNode;
+        const { value } = innerQuery.name as NameNode;
+        axiosApiInstance(value)
+            .post(`${GQL_DOMAIN}`, {
+                query: `${query}`,
+                variables: {
+                    idx
+                }
+            })
+            .then(res => {
+                setDetails(res.data[value].data);
+            });
+    };
+    const onClickSubmit = (loc: number, cname: string) => {
+        if (loc) {
+            if (cname) {
                 const innerQuery = CHURCH_LIST.definitions[0] as OperationDefinitionNode;
                 const { value } = innerQuery.name as NameNode;
                 axiosApiInstance(value)
                     .post(`${GQL_DOMAIN}`, {
                         query: `${churchQuery}`,
                         variables: {
-                            location_idx: location,
+                            location_idx: loc,
                             detail,
-                            name: church
+                            name: cname
                         }
                     })
                     .then(res => {
-                        setChurchList(res.data[value].data);
+                        const list = res.data[value].data;
+                        if (list) {
+                            if (list.length > 0) {
+                                if (!myChurch) {
+                                    setChurchIdx(list[0].idx);
+                                }
+                            }
+                            setChurchList(list);
+                        }
                     });
             } else {
                 setSnack(prev => ({ ...prev, open: true, message: '교회 이름을 입력해주세요.' }));
@@ -167,10 +209,26 @@ const myChurch: React.FC<IProps> = props => {
             setSnack(prev => ({ ...prev, open: true, message: '지역을 선택해주세요.' }));
             setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
         }
-        console.log(location, detail, church);
     };
 
-    const onClickNext = () => {};
+    const onClickNext = () => {
+        if (churchIdx) {
+            func({
+                variables: {
+                    church_idx: churchIdx
+                }
+            });
+        } else {
+            setSnack(prev => ({ ...prev, open: true, message: '선택된 교회가 없습니다.' }));
+            setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+        }
+    };
+
+    const onPressEnter = e => {
+        if (e.code === 'Enter') {
+            onClickSubmit(location, churchName);
+        }
+    };
 
     useEffect(() => {
         if (data) {
@@ -179,6 +237,22 @@ const myChurch: React.FC<IProps> = props => {
             } = data;
             if (status === 200) {
                 setLocations(rest.data.locations);
+                if (rest.data.myChurch) {
+                    const splited = rest.data.myChurch.address.split(' ');
+                    setMyChurch(rest.data.myChurch);
+                    setChurchName(rest.data.myChurch.name);
+                    rest.data.locations.some(lo => {
+                        if (lo.location === splited[0]) {
+                            setLocation(lo.idx);
+                            setDetail(splited[1]);
+                            loadDetail(lo.idx);
+                            onClickSubmit(lo.idx, rest.data.myChurch.name);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
+                }
             } else if (status === 201) {
                 const cookie = useCookie();
                 cookie.set(TOKEN, rest.token, { path: '/' });
@@ -192,22 +266,29 @@ const myChurch: React.FC<IProps> = props => {
 
     useEffect(() => {
         if (location) {
-            const innerQuery = DETAIL_LOCATIONN.definitions[0] as OperationDefinitionNode;
-            const { value } = innerQuery.name as NameNode;
-            axiosApiInstance(value)
-                .post(`${GQL_DOMAIN}`, {
-                    query: `${query}`,
-                    variables: {
-                        idx: location
-                    }
-                })
-                .then(res => {
-                    setDetails(res.data[value].data);
-                });
+            loadDetail(location);
         } else {
             setDetails([]);
         }
     }, [location]);
+
+    useEffect(() => {
+        if (result.data) {
+            const {
+                setMyChurch: { status, token, location, errors }
+            } = result.data;
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                onClickNext();
+            } else if (status === 200) {
+                router.push(location);
+            } else if (errors) {
+                setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+            }
+        }
+    }, [result.data]);
 
     return (
         <AbstractComponent>
@@ -237,14 +318,14 @@ const myChurch: React.FC<IProps> = props => {
                     </FormControl>
                 )}
                 <div style={{ marginTop: '1.25rem', width: '100%', position: 'relative' }}>
-                    <HInput width="100%" label="교회 검색하기" variant="outlined" value={church} onChange={onChangeChurch} />
-                    <IconButton aria-label="search" size="small" style={{ position: 'absolute', right: 5, top: 6, background: 'white' }} onClick={onClickSubmit}>
+                    <HInput width="100%" label="교회 검색하기" variant="outlined" value={churchName} onChange={onChangeChurchName} onKeyPress={onPressEnter} />
+                    <IconButton aria-label="search" size="small" style={{ position: 'absolute', right: 5, top: 6, background: 'white' }} onClick={() => onClickSubmit(location, churchName)}>
                         <SearchIcon fontSize="large" />
                     </IconButton>
                 </div>
                 {churchList.length > 0 && (
                     <FormControl component="fieldset" fullWidth>
-                        <RadioGroup value={churchIdx ? churchIdx : churchList[0].idx} name="radio-buttons-group" onChange={onChangeChurchIdx}>
+                        <RadioGroup value={churchIdx} name="radio-buttons-group" onChange={onChangeChurchIdx}>
                             {churchList.map(ch => (
                                 <FormControlLabel
                                     key={ch.idx}
