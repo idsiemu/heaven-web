@@ -107,7 +107,7 @@ const myIntro: React.FC<IProps> = props => {
                 onClickNext();
             } else if (status === 200) {
                 dispatch(sessionAction.setName(rest.data.name));
-                router.push(`/intro${location}`);
+                router.push(location);
             } else if (errors) {
                 setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
                 setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);

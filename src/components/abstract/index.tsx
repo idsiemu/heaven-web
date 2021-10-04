@@ -30,15 +30,22 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
                 } else {
                     if (session.location) {
                         Router.replace(`${session.location}?replace=true`, session.location);
+                        if (Router.pathname === session.location) {
+                            dispatch(sessionAction.setLocation(null));
+                        }
                     }
                 }
             }
         }
         return () => {
-            dispatch(sessionAction.setLocation(null));
+            if (Router.pathname === session.location) {
+                dispatch(sessionAction.setLocation(null));
+            }
         };
     }, [session.initial, session.session]);
-
+    // console.log('session : ' + session.session);
+    // console.log('location : ' + session.location);
+    // console.log('initial : ' + session.initial);
     return (
         <React.Fragment>
             <Head>
@@ -49,7 +56,7 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             ) : (
                 <React.Fragment>
                     {session.session ? (
-                        <React.Fragment>{Router.pathname === '/login' ? <Progress /> : props.children}</React.Fragment>
+                        <React.Fragment>{Router.pathname === '/login' || session.location ? <Progress /> : props.children}</React.Fragment>
                     ) : (
                         <React.Fragment>{Router.pathname === '/login' ? props.children : <Progress />}</React.Fragment>
                     )}

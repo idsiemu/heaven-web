@@ -12,7 +12,7 @@ export const HInput = styled(TextField)<IInput>`
         position: relative;
         width: ${props => (props.width ? props.width : 'auto')};
         max-width: ${({theme}) => `${theme.size.mobileWidth}px`};
-        margin-bottom: ${props => props.marginbottom ? props.marginbottom : '2rem' };
+        margin-bottom: ${props => props.marginbottom ? props.marginbottom : '1.25rem' };
         .MuiFormLabel-root.Mui-focused{
             color: ${({ theme }) => theme.colors.black};
         }
