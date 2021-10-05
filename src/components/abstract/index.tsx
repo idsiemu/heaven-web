@@ -25,12 +25,34 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
                 }
             } else {
                 if (Router.pathname === '/login') {
-                    const replaced = session.location ? session.location : '/';
-                    Router.replace(`${replaced}?replace=true`, replaced);
+                    let alias = '';
+                    let setLocation = '';
+                    if (session.location) {
+                        if (session.location.indexOf('?') === -1) {
+                            alias = session.location;
+                            setLocation = `${session.location}?replace=true`;
+                        } else {
+                            alias = session.location.split('?')[0];
+                            setLocation = `${session.location}&replace=true`;
+                        }
+                    } else {
+                        alias = '/';
+                        setLocation = '/';
+                    }
+                    Router.replace(setLocation, alias);
                 } else {
                     if (session.location) {
-                        Router.replace(`${session.location}?replace=true`, session.location);
-                        if (Router.pathname === session.location) {
+                        let alias = '';
+                        let setLocation = '';
+                        if (session.location.indexOf('?') === -1) {
+                            alias = session.location;
+                            setLocation = `${session.location}?replace=true`;
+                        } else {
+                            alias = session.location.split('?')[0];
+                            setLocation = `${session.location}&replace=true`;
+                        }
+                        Router.replace(setLocation, alias);
+                        if (Router.pathname === alias) {
                             dispatch(sessionAction.setLocation(null));
                         }
                     }

@@ -43,9 +43,25 @@ const GET_VERIFY_CODE: DocumentNode = gql`
     }
 `;
 
+const SET_MY_PHONE: DocumentNode = gql`
+    mutation setMyPhone($code: String!) {
+        setMyPhone(code: $code) {
+            status
+            token
+            location
+            errors {
+                code
+                var
+                text
+            }
+        }
+    }
+`;
+
 const myPhone: React.FC<IProps> = props => {
     const session = useSelector((state: RootState) => state.sessionReducer);
     const [func, result] = useMutation(GET_VERIFY_CODE);
+    const [func2, result2] = useMutation(SET_MY_PHONE);
 
     const [phone, setPhone] = useState('');
     const [code, setCode] = useState('');
@@ -79,19 +95,27 @@ const myPhone: React.FC<IProps> = props => {
     const onClickConfirm = (confirm: boolean) => {
         if (confirm) {
             if (verify) {
-                console.log('인증 완료후 데이터 베이스에 전번 삽입');
+                if (!result2.loading) {
+                    func2({
+                        variables: {
+                            code
+                        }
+                    });
+                }
             } else {
                 setSnack(prev => ({ ...prev, open: true, message: '인증코드 6자리를 입력해주세요.' }));
                 setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
             }
         } else {
             if (phone.length === 13) {
-                func({
-                    variables: {
-                        phone
-                    }
-                });
-                setConfirm(true);
+                if (!result.loading) {
+                    func({
+                        variables: {
+                            phone
+                        }
+                    });
+                    setConfirm(true);
+                }
             } else {
                 setSnack(prev => ({ ...prev, open: true, message: '전화번호 13자리를 입력해주세요.' }));
                 setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
@@ -104,6 +128,69 @@ const myPhone: React.FC<IProps> = props => {
             setPhone(session.session.phone ? session.session.phone : '');
         }
     }, [session.session]);
+
+    useEffect(() => {
+        if (result.data) {
+            const {
+                getVerifyCode: { status, token, errors }
+            } = result.data;
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                func({
+                    variables: {
+                        phone
+                    }
+                });
+            } else if (errors) {
+                setConfirm(false);
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '100-007') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/login');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [result.data]);
+
+    useEffect(() => {
+        if (result2.data) {
+            const {
+                setMyPhone: { status, location, token, errors }
+            } = result2.data;
+            if (status === 201) {
+                const cookie = useCookie();
+                cookie.set(TOKEN, token, { path: '/' });
+                func2({
+                    variables: {
+                        code
+                    }
+                });
+            } else if (status === 200) {
+                router.push(location);
+            } else if (errors) {
+                let isBan = false;
+                errors.forEach(err => {
+                    if (err.code === '100-007') {
+                        isBan = true;
+                    }
+                });
+                if (isBan) {
+                    router.push('/login');
+                } else {
+                    setSnack(prev => ({ ...prev, open: true, message: errors[0].text ? errors[0].text : '' }));
+                    setTimeout(() => setSnack(prev => ({ ...prev, message: '', open: false })), 2000);
+                }
+            }
+        }
+    }, [result2.data]);
 
     return (
         <AbstractComponent>

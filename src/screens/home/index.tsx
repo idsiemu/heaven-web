@@ -2,8 +2,10 @@ import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
 import Header from '@components/header';
 import { IProps } from '@interfaces';
+import router from 'next/router';
 
 const Home: React.FC<IProps> = props => {
+    console.log(router.router?.query);
     return (
         <AbstractComponent>
             <GlobalStyle />
