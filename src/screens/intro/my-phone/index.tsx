@@ -1,7 +1,6 @@
 import AbstractComponent from '@components/abstract';
 import styled from 'styled-components';
 import Container from '@material-ui/core/Container';
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 import { HButton } from '@components/button/styled';
 import { useState, useEffect } from 'react';
 import { DocumentNode, gql, useMutation } from '@apollo/client';
@@ -17,6 +16,7 @@ import { HInput } from '@components/input/styled';
 import { RootState } from '@redux/reducers';
 import { useDispatch, useSelector } from 'react-redux';
 import { replacePhoneNumber } from 'src/utils/utils';
+import { sessionAction } from '@redux/actions';
 
 const MyPhoneContainer = styled(Container)`
     && {
@@ -59,6 +59,7 @@ const SET_MY_PHONE: DocumentNode = gql`
 `;
 
 const myPhone: React.FC<IProps> = props => {
+    const dispatch = useDispatch();
     const session = useSelector((state: RootState) => state.sessionReducer);
     const [func, result] = useMutation(GET_VERIFY_CODE);
     const [func2, result2] = useMutation(SET_MY_PHONE);
@@ -163,7 +164,7 @@ const myPhone: React.FC<IProps> = props => {
     useEffect(() => {
         if (result2.data) {
             const {
-                setMyPhone: { status, location, token, errors }
+                setMyPhone: { status, location, token, errors, data }
             } = result2.data;
             if (status === 201) {
                 const cookie = useCookie();
@@ -174,7 +175,8 @@ const myPhone: React.FC<IProps> = props => {
                     }
                 });
             } else if (status === 200) {
-                router.push(location);
+                dispatch(sessionAction.setPhone(data));
+                router.push(location ? location : '/');
             } else if (errors) {
                 let isBan = false;
                 errors.forEach(err => {

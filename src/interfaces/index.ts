@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 export interface IParam {
     idx: number;
+    service_popup?: string
 }
 
 export interface IHistory {

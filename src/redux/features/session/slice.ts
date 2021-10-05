@@ -105,6 +105,11 @@ const sessionSlice = createSlice({
             state.errors = null
             state.snack = null
         },
+        setPhone: (state, { payload }: PayloadAction<string|null>) => {
+            if(state.session){
+                state.session.phone = payload ? payload : undefined
+            }
+        },
         setLocation: (state, { payload }: PayloadAction<string|null>) => {
             state.location = payload
         },
@@ -123,7 +128,7 @@ const sessionSlice = createSlice({
         },
         setName: (state, { payload }: PayloadAction<string|null>) => {
             if(state.session){
-                state.session.name = payload ? payload : ''
+                state.session.name = payload ? payload : undefined
             }
         },
     },
