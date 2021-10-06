@@ -12,16 +12,13 @@ const Home: React.FC<IProps> = props => {
     const [isServer, setIsServer] = useState(false);
     const onClickService = () => {
         if (session.session) {
-            console.log(session.session.role.includes({ role_idx: 2 }));
         }
     };
-
     useEffect(() => {
         if (props.query.service_popup) {
             setIsServer(true);
-            console.log(1234);
         }
-    }, []);
+    }, [props.query]);
     return (
         <AbstractComponent>
             <GlobalStyle />
