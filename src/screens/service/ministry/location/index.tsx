@@ -1,6 +1,5 @@
 import AbstractComponent from '@components/abstract';
 import GlobalStyle from '@styles/globalStyles';
-import { HFormControlLabel, HFormGroup, LocationContainer } from './style';
 import { IParam, IProps } from '@interfaces';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_LOCATIONS, SET_LOCATIONS } from './gql';
@@ -19,6 +18,8 @@ import { HH2 } from '@components/text';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import Checkbox from '@material-ui/core/Checkbox';
+import { Body } from '@components/body/style';
+import { HFormControlLabel, HFormGroup } from '@components/checkbox/style';
 
 const Location: React.FC<IProps> = props => {
     const { idx } = props.query as IParam;
@@ -76,7 +77,6 @@ const Location: React.FC<IProps> = props => {
             idx: Number(idx)
         }
     });
-
     const [func, result] = useMutation(SET_LOCATIONS);
 
     const [snack, setSnack] = useState<ISnack>({
@@ -176,7 +176,7 @@ const Location: React.FC<IProps> = props => {
         <AbstractComponent>
             <GlobalStyle />
             <Header history={props.history} />
-            <LocationContainer>
+            <Body>
                 <HH2>활동지역</HH2>
                 {locations.map((lo, index) => {
                     return (
@@ -203,16 +203,13 @@ const Location: React.FC<IProps> = props => {
                         </Fragment>
                     );
                 })}
-                <BottomComponent>
-                    <HButton width="30%" onClick={() => router.push(`/service/ministry/describe?idx=${idx}`)}>
-                        이전
-                    </HButton>
+                <BottomComponent state="single">
                     <HButton width="30%" onClick={onClickNext}>
-                        {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '완료'}
+                        {result.loading ? <CircularProgress style={{ color: 'white' }} /> : '다음'}
                     </HButton>
                 </BottomComponent>
                 <HSnack anchorOrigin={{ vertical, horizontal }} open={open} message={message} />
-            </LocationContainer>
+            </Body>
         </AbstractComponent>
     );
 };

@@ -41,7 +41,7 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
                     }
                     Router.replace(setLocation, alias);
                 } else {
-                    if (session.location) {
+                    if (session.location && (Router.pathname.indexOf('/intro') !== -1 || Router.pathname === '/')) {
                         let alias = '';
                         let setLocation = '';
                         if (session.location.indexOf('?') === -1) {
@@ -55,6 +55,8 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
                         if (Router.pathname === alias) {
                             dispatch(sessionAction.setLocation(null));
                         }
+                    }else{
+                        dispatch(sessionAction.setLocation(null));
                     }
                 }
             }
@@ -65,9 +67,6 @@ const AbstractComponent = ({ headTitle, ...props }: IAbstractComponent) => {
             }
         };
     }, [session.initial, session.session]);
-    // console.log('session : ' + session.session);
-    // console.log('location : ' + session.location);
-    // console.log('initial : ' + session.initial);
     return (
         <React.Fragment>
             <Head>

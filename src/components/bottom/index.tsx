@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 
-type state = 'front' | 'end';
+type state = 'single' | 'end';
 interface IStyle {
     isBottom: boolean;
     state?: state;
@@ -20,7 +20,7 @@ const BottomStyle = styled.div<IStyle>`
             display: flex;
             width: 100%;
             justify-content: space-between;
-            ${props.state && props.state === 'front' ? 'justify-content: flex-end;' : ''}
+            ${props.state && props.state === 'single' ? 'justify-content: flex-end;' : ''}
             max-width: ${`${props.theme.size.mobileWidth}px`};
         }
     `}

@@ -10,12 +10,28 @@ import { useSelector } from 'react-redux';
 const Home: React.FC<IProps> = props => {
     const session = useSelector((state: RootState) => state.sessionReducer);
     const [isServer, setIsServer] = useState(false);
+    const [roleIdx, setRoleIdx] = useState('');
+    const [serviceIdx, setServiceIdx] = useState(0);
     const onClickService = () => {
         if (session.session) {
+            if(roleIdx){
+                switch (roleIdx) {
+                    case '2':
+                        router.push(`/service/ministry/location?idx=${serviceIdx}`)
+                        break;
+                    case '3':
+                        router.push(`/service/praise/location?idx=${serviceIdx}`)
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     };
     useEffect(() => {
         if (props.query.service_popup) {
+            setRoleIdx(props.query.service_popup)
+            setServiceIdx(props.query.idx)
             setIsServer(true);
         }
     }, [props.query]);
