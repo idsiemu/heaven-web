@@ -1,66 +1,33 @@
-# heaven-web
+### nextjs에 apollo 서버와 연동하여 웹 개발진행
 
+# 주요 세팅 정보
+    * typescript
+    * apollo client
+    * graphql
+    * redux
+    * redux-saga
+    * styled-components
+    * axios
 
-This project was generated with [superplate](https://github.com/pankod/superplate).
+# 서비스 플로우
+* 회원가입 &#8594; 회원가입 타입 선택 &#8594; 특정 회원타입일때 &#8594; 서비스 프로필 등록
 
-## Getting Started
+# 만들어야할 목록
+[x] 로그인
+[x] 카카오 로그인
+[x] 회원가입
+[x] 지역등록
+[x] 약력등록
+[x] 소개
+[x] 전화번호 인증(알리고 api)
+[x] 프로필 변경
+[x] 주요 연령층
+[x] 서비스 소개 이미지
+[x] s3 이미지 업로드
 
-superplate is a Next.js all-in-one project generator. Create your project with the tools you need without spending hours on setting them up.
-
-## Available Scripts
-
-### Running the development server.
-
-```bash
-    yarn dev
-```
-
-### Building for production.
-
-```bash
-    yarn build
-```
-
-### Running the production server.
-
-```bash
-    yarn start
-```
-
-## Learn More
-
-To learn more about **superplate**, please check out the [Documentation](https://github.com/pankod/superplate).
-
-
-### **Styled Components**
-
-Utilising tagged template literals (a recent addition to JavaScript) and the power of CSS, styled-components allows you to write actual CSS code to style your components.
-
-[Go To Documentation](https://styled-components.com/docs)
-
-
-### **Styled System**
-
-Styled System is a collection of utility functions that add style props to your React components and allows you to control styles based on a global theme object with typographic scales, colors, and layout properties.
-
-[Go To Documentation](https://styled-system.com/getting-started)
-
-
-### **React Redux**
-
-Redux helps you write applications that behave consistently, run in different environments (client, server, and native), and are easy to test.
-
-[Go To Documentation](https://redux.js.org/introduction/getting-started)
-
-
-### **Docker**
-
-Docker simplifies and accelerates your workflow, while giving developers the freedom to innovate with their choice of tools, application stacks, and deployment environments for each project.
-
-[Go To Documentation](https://www.docker.com/get-started)
-
-
-
-## License
-
-MIT
+# 로그인 상태 관리
+* axiosInstance의 intercepter를 사용하여 jwt token refresh 처리
+    * src/axios/index.ts 의 intercepter 항목을 참고하면 됩니다.
+* 로그인 세션은 덕스 패턴타입의 saga를 통해서 세션값을 유지 및 체크한다.
+* 세션 정보 최초 랜더링 플로우
+    src/redux/features/session/saga.ts &#8594; watchSessionSaga &#8594; initialSaga &#8594; src/redux/features/session/slice.ts 세션 정보 리덕스영역 저장
