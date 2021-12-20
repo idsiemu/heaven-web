@@ -2,12 +2,12 @@
 
 # 주요 세팅 정보
 * typescript
-* apollo client
-* graphql
-* redux
-* redux-saga
-* styled-components
-* axios
+* apollo client // apollo server api 서버와 연동
+* graphql // apollo server graphql 서버로 세팅하여 연동처리
+* redux // 리덕스 store 영역을 사용하기 위해 처리
+* redux-saga // api 봉쇄 비봉쇄 처리를 매끄럽게 하기위해 saga 도입
+* styled-components // 웹을 좀더 예쁘게 만들기 위해 도입
+* axios // graphql render이외에 함수 안에서 api를 call 해야할 떄 필요하여 도입
 
 # 서비스 플로우
 * 회원가입 &#8594; 회원가입 타입 선택 &#8594; 특정 회원타입일때 &#8594; 서비스 프로필 등록
@@ -31,3 +31,6 @@
 * 로그인 세션은 덕스 패턴타입의 saga를 통해서 세션값을 유지 및 체크한다.
 * 세션 정보 최초 랜더링 플로우
     - src/redux/features/session/saga.ts &#8594; watchSessionSaga &#8594; initialSaga &#8594; src/redux/features/session/slice.ts 세션 정보 리덕스영역 저장
+
+% backend server는 비공개상태이기 해당 레파지토리를 실행시키더라도 실제 서비스 플로우는 체험하실 수 없습니다.
+% axiosInstance, 덕스패턴, typescript, nextjs, apollo client 세팅 과 같은 정보를 참고하시면 도움이 될겁니다.
