@@ -36,3 +36,5 @@
 
 <span style="color:red">backend server는 비공개 상태입니다. 해당 레파지토리를 실행시키더라도 실제 서비스 플로우는 체험하실 수 없습니다.</span>
 <span style="color:red">axiosInstance, 덕스패턴, typescript, nextjs, apollo client 세팅 과 같은 정보를 참고하시면 도움이 될겁니다.</span>
+
+* * *
