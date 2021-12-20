@@ -1,4 +1,4 @@
-### nextjs에 apollo 서버와 연동하여 웹 개발진행
+### nextjs에 apollo 서버와 연동하여 웹 개발진행 및 세팅에 대한 참고 자료
 
 # 주요 세팅 정보
 * typescript
@@ -32,6 +32,6 @@
 * 세션 정보 최초 랜더링 플로우
     - src/redux/features/session/saga.ts &#8594; watchSessionSaga &#8594; initialSaga &#8594; src/redux/features/session/slice.ts 세션 정보 리덕스영역 저장
 
-<span style="color:red">backend server는 비공개상태이기 해당 레파지토리를 실행시키더라도 실제 서비스 플로우는 체험하실 수 없습니다.</span>
 
+<span style="color:red">backend server는 비공개 상태입니다. 해당 레파지토리를 실행시키더라도 실제 서비스 플로우는 체험하실 수 없습니다.</span>
 <span style="color:red">axiosInstance, 덕스패턴, typescript, nextjs, apollo client 세팅 과 같은 정보를 참고하시면 도움이 될겁니다.</span>
